@@ -24,15 +24,25 @@ const TaskSchema = new Schema({
     type: Date,
     default: function() { return new Date(this.impressionDate.getTime() + 7*24*60*60*1000) }
   },
-  upperImpression: String,
-  upperImpressionReady: {
-    type: Boolean,
-    default: false
-  },
-  lowerImpression: String,
-  lowerImpressionReady: {
-    type: Boolean,
-    default: false
+  arcade: {
+    upperImpression: String,
+    upperImpressionReady: {
+      type: Boolean,
+      default: false
+    },
+    lowerImpression: String,
+    lowerImpressionReady: {
+      type: Boolean,
+      default: false
+    },
+    upperImpressionGCSKey: {
+      type: String,
+      default: null
+    },
+    lowerImpressionGCSKey: {
+      type: String,
+      default: null
+    }
   },
   quantity: {
     type: Number,
@@ -55,4 +65,3 @@ const TaskSchema = new Schema({
 });
 
 module.exports = mongoose.models.Task || mongoose.model('Task', TaskSchema);
-

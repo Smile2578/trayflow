@@ -135,7 +135,7 @@ function NewTask({ onAdd, onClose }) {
             onAdd(data);
             onClose();
 
-            // Reset form after submission
+            
             setPatientName('');
             setTaskType('');
             setImpressionDate(new Date().toISOString().slice(0, 10));
@@ -259,13 +259,13 @@ function NewTask({ onAdd, onClose }) {
                     accept=".stl,.jpg" 
                     onChange={e => handleFileChange(e, 'upper')} 
                     required
-                    className="hidden" // Hide the default file input
+                    className="hidden" 
                 />
                 <label htmlFor="upperImpression" className="mr-2 cursor-pointer bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded">
                     Selectionner un fichier
                 </label>
                 <span id="upperFileName" className="mr-2 overflow-hidden">
-                    {/* Display the file name here */}
+                    
                 </span>
                 <IconButton onClick={() => handleFileRemove('upper')} size="small">
                     <DeleteIcon />
@@ -286,13 +286,13 @@ function NewTask({ onAdd, onClose }) {
                     accept=".stl,.jpg" 
                     onChange={e => handleFileChange(e, 'lower')} 
                     required
-                    className="hidden" // Hide the default file input
+                    className="hidden"
                 />
                 <label htmlFor="lowerImpression" className="mr-2 cursor-pointer bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded">
                     Selectionner un fichier
                 </label>
                 <span id="lowerFileName" className="mr-2 overflow-hidden">
-                    {/* Display the file name here */}
+                    
                 </span>
                 <IconButton onClick={() => handleFileRemove('lower')} size="small">
                     <DeleteIcon />

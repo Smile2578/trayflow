@@ -1,47 +1,31 @@
+import { Storage } from '@google-cloud/storage';
 import connectToDatabase from "../../../utils/db";
 
+const { GOOGLE_CLOUD_KEYFILE, BUCKET_NAME } = process.env;
+
+const storage = new Storage({
+    keyFilename: GOOGLE_CLOUD_KEYFILE
+});
+
+const bucket = storage.bucket(BUCKET_NAME);
+
 export default async function handler(req, res) {
-    const { connection, bucket } = await connectToDatabase();
+    await connectToDatabase(); // Assuming this still establishes your MongoDB connection
 
-    if (!connection) {
-        console.error("Database connection not established.");
-        return res.status(500).json({ error: "Database connection failed." });
-    }
-
-    if (!bucket) {
-        console.error("GridFS bucket not initialized.");
-        return res.status(500).json({ error: "GridFS initialization failed." });
-    }
-
-    console.log("Database connected and GridFS bucket initialized.");
-
-    // Handle OPTIONS method (pre-flight request).
-    if (req.method === 'OPTIONS') {
-        res.setHeader('Access-Control-Allow-Methods', 'GET');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-        return res.status(200).end();
-    }
-
-    // Handle GET request for file download
     if (req.method === 'GET') {
         const { key } = req.query;
         if (!key) {
             return res.status(400).json({ error: 'File key is required.' });
         }
 
-        console.log(`Attempting to download file with ID: ${key}`);
+        const file = bucket.file(key);
 
-        bucket.openDownloadStreamByName(key)
+        file.createReadStream()
             .on('error', (error) => {
-                console.error(`Error fetching file with ID ${key} from GridFS:`, error);
-                return res.status(500).send("Failed to fetch file");
+                return res.status(500).json({ error: `Download failed: ${error}` });
             })
             .pipe(res);
-        
-        // Return here to prevent further execution.
-        return;
+    } else {
+        return res.status(405).json({ error: 'Method not allowed.' });
     }
-
-    // If no method matched, return a 405 error.
-    return res.status(405).json({ error: 'Method not allowed.' });
 }

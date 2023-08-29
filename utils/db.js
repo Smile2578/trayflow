@@ -1,17 +1,18 @@
 import mongoose from 'mongoose';
-import { GridFSBucket } from 'mongodb';
+import { Storage } from '@google-cloud/storage';
 
-const { MONGODB_URI } = process.env;
+const { MONGODB_URI, GOOGLE_CLOUD_KEYFILE, BUCKET_NAME } = process.env;
 
 if (!MONGODB_URI) {
     throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
 }
 
 let cached = global.mongoose;
+let storage;
 let bucket;
 
 if (!cached) {
-    cached = global.mongoose = { conn: null, promise: null, bucket: null };
+    cached = global.mongoose = { conn: null, promise: null, storage: null, bucket: null };
 }
 
 async function connectToDatabase() {
@@ -27,7 +28,6 @@ async function connectToDatabase() {
         };
 
         cached.promise = mongoose.connect(MONGODB_URI, opts).then(mongooseInstance => {
-            console.log("Database connection established.");
             return mongooseInstance.connections[0];
         });
     }
@@ -38,13 +38,13 @@ async function connectToDatabase() {
         throw new Error("Failed to connect to database");
     }
 
-    // Initialize the GridFS bucket here after the connection is established
-    if (!cached.bucket) {
-        console.log("Initializing GridFS bucket.");
-        cached.bucket = new GridFSBucket(cached.conn.db, {
-            bucketName: 'files'
+    if (!cached.storage) {
+        console.log("Initializing Google Cloud Storage.");
+        cached.storage = new Storage({
+            keyFilename: GOOGLE_CLOUD_KEYFILE
         });
-        console.log("GridFS bucket initialized.");
+        cached.bucket = cached.storage.bucket(BUCKET_NAME);
+        console.log("Google Cloud Storage initialized.");
     }
 
     return { connection: cached.conn, bucket: cached.bucket };
