@@ -9,6 +9,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 
+
 const TASK_TYPE = "TASK";
 
 function Task({ task, onDelete, onMove, category, onCollect }) {
@@ -36,16 +37,29 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
     };
 
     const handleCollect = async () => {
-        // Delete associated files when task is collected
-        if (task.upperImpression) {
-            await fetch(`/api/uploads/upload/${task.upperImpression}`, { method: 'DELETE' });
+        try {
+          // Delete associated files when task is collected
+          if (task.upperImpression) {
+            const response = await fetch(`/api/uploads/delete?key=${task.upperImpression}`, { method: 'DELETE' });
+            if (!response.ok) {
+              throw new Error('Failed to delete upper impression.');
+            }
+          }
+          if (task.lowerImpression) {
+            const response = await fetch(`/api/uploads/delete?key=${task.lowerImpression}`, { method: 'DELETE' });
+            if (!response.ok) {
+              throw new Error('Failed to delete lower impression.');
+            }
+          }
+      
+          // Call the passed-in onCollect function to update the task's status to "Récupéré"
+          onCollect(task._id);
+      
+        } catch (error) {
+          // Handle errors here
+          console.error(error);
         }
-        if (task.lowerImpression) {
-            await fetch(`/api/uploads/upload/${task.lowerImpression}`, { method: 'DELETE' });
-        }
-        // Call the passed in onCollect function to update the task's status to "Récupéré"
-        onCollect(task._id);
-    };
+      };
 
     const handleConfirm = () => {
         if (actionToConfirm === 'delete') {
@@ -55,6 +69,29 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
         }
         setActionToConfirm(null);
     };
+
+    const handleDownload = async (key) => {
+        try {
+          const response = await fetch(`/api/uploads/download?key=${key}`);
+          if (response.ok) {
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = key;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          } else {
+            alert('Failed to download file.');
+          }
+        } catch (error) {
+          console.error(error);
+          alert('An error occurred while downloading the file.');
+        }
+      };
+      
 
     let cardColor = "bg-gray-50";
     switch(task.taskType) {
@@ -94,16 +131,15 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
             <p className="text-sm mb-2"><span className="font-medium">Date Travail:</span> {new Date(task.fittingDate).toLocaleDateString()}</p>
             <p className="text-sm mb-2"><span className="font-medium">Priorité:</span> {task.priority}</p>
             {task.upperImpression || task.lowerImpression ? (
-        <>
-            <p className="text-sm mb-2">
-                <span className="font-medium">Empreinte:</span> 
-                {task.upperImpression && <a href={`/api/uploads/download?key=${task.upperImpression}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline ml-2">Haut</a>}
-                {task.upperImpression && task.lowerImpression && ' & '}
-                {task.lowerImpression && <a href={`/api/uploads/download?key=${task.lowerImpression}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Bas</a>}
-
-            </p>
-        </>
-    ) : (
+                <>
+                    <p className="text-sm mb-2">
+                    <span className="font-medium">Empreinte:</span> 
+                    {task.upperImpression && <span onClick={() => handleDownload(task.upperImpression)} className="text-blue-500 hover:underline cursor-pointer ml-2">Haut</span>}
+                    {task.upperImpression && task.lowerImpression && ' & '}
+                    {task.lowerImpression && <span onClick={() => handleDownload(task.lowerImpression)} className="text-blue-500 hover:underline cursor-pointer">Bas</span>}
+                    </p>
+                </>
+                ) : (
             <p className="text-sm mb-2">
                 <span className="font-medium">Empreinte:</span> {task.upperImpression ? 'Haut' : task.lowerImpression ? 'Bas' : 'Haut & Bas'}
             </p>

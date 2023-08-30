@@ -4,7 +4,7 @@ export default async function handler(req, res) {
   await initGoogleCloudStorage();  // Initialize GCS
   const bucket = getGCSBucket();  // Get the initialized bucket
 
-  if (req.method === 'GET') {
+  if (req.method === 'DELETE') {
     const { key } = req.query;
 
     if (!key) {
@@ -12,13 +12,14 @@ export default async function handler(req, res) {
     }
 
     const file = bucket.file(key);
-
-    file.createReadStream()
-      .on('error', (error) => {
-        console.error(`Download Error: ${error}`);
-        return res.status(500).json({ error: 'Download failed' });
+    file.delete()
+      .then(() => {
+        res.status(200).json({ message: 'File deleted successfully' });
       })
-      .pipe(res);
+      .catch((err) => {
+        console.error(`Deletion Error: ${err}`);
+        res.status(500).json({ error: 'Deletion failed' });
+      });
   } else {
     return res.status(405).json({ error: 'Method not allowed.' });
   }

@@ -11,14 +11,40 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     const {
-      patientName, practitionerName, taskType, impressionDate, fittingDate, upperImpression, 
-      upperImpressionReady, lowerImpression, lowerImpressionReady, quantity, priority, comment, status
+      patientName,
+      practitionerName,
+      taskType,
+      impressionDate,
+      fittingDate, 
+      arcade: {
+        upperImpression,
+        upperImpressionReady,
+        lowerImpression,
+        lowerImpressionReady
+      },
+      quantity,
+      priority,
+      comment,
+      status
     } = req.body;
 
     try {
       const newTask = new Task({
-        patientName, practitionerName, taskType, impressionDate, fittingDate, upperImpression, 
-        upperImpressionReady, lowerImpression, lowerImpressionReady, quantity, priority, comment, status
+        patientName,
+        practitionerName,
+        taskType,
+        impressionDate,
+        fittingDate, 
+        arcade: {
+          upperImpression,
+          upperImpressionReady,
+          lowerImpression,
+          lowerImpressionReady
+        },
+        quantity,
+        priority,
+        comment,
+        status
       });
 
       await newTask.save();

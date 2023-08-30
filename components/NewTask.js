@@ -57,105 +57,109 @@ function NewTask({ onAdd, onClose }) {
     }
 
     const handleUpload = async (file) => {
+        if (file.size > 55 * 1024 * 1024) {  // 55 MB limit
+            alert('File size exceeds the 55 MB limit.');  // Frontend alert
+            return null;  // Return null instead of throwing an error
+        }
         try {
             const formData = new FormData();
             formData.append('file', file);
-            
-            const response = await fetch('/api/uploads/upload', {
+    
+            const response = await fetch('/api/uploads/uploadToGCS', {
                 method: 'POST',
                 body: formData
             });
-
+    
             if (!response.ok) {
-                throw new Error('Failed to upload file.');
+                console.error('Failed to upload file.');
+                return null;  // Return null if upload fails
             }
-
+    
             const data = await response.json();
             return data.fileID;
         } catch (error) {
             console.error('Failed to upload:', error);
-            return null;
+            return null;  // Return null if an error occurs
         }
     };
+    
+      
 
     const handleAddTask = async (e) => {
-        if (isSubmitting) return; // If already submitting, do nothing
+        if (isSubmitting) return;
         setIsSubmitting(true);
         e.preventDefault();
-    
-        let upperImpressionKey = '';
-        let lowerImpressionKey = '';
-    
-        if (upperFile && (arcade === 'upper' || arcade === 'both')) {
+      
+        try {
+          let upperImpressionKey = '';
+          let lowerImpressionKey = '';
+      
+          if ((arcade === 'upper' || arcade === 'both') && upperFile) {
             upperImpressionKey = await handleUpload(upperFile);
             if (!upperImpressionKey) {
-                setSnackbarMessage('Failed to upload upper impression.');
-                setSnackbarSeverity('error');
-                setOpenSnackbar(true);
-                setIsSubmitting(false);
-                return;
+              throw new Error('Failed to upload upper impression.');
             }
-        }
-    
-        if (lowerFile && (arcade === 'lower' || arcade === 'both')) {
+          }
+      
+          if ((arcade === 'lower' || arcade === 'both') && lowerFile) {
             lowerImpressionKey = await handleUpload(lowerFile);
             if (!lowerImpressionKey) {
-                setSnackbarMessage('Failed to upload lower impression.');
-                setSnackbarSeverity('error');
-                setOpenSnackbar(true);
-                setIsSubmitting(false);
-                return;
+              throw new Error('Failed to upload lower impression.');
             }
-        }
-    
-        const taskData = {
+          }
+      
+          const taskData = {
             patientName,
-            practitionerName: practitionerName,
+            practitionerName,
             taskType,
             impressionDate,
             quantity,
             priority,
             comment,
-            upperImpression: upperImpressionKey,
-            lowerImpression: lowerImpressionKey,
+            arcade: {
+              upperImpression: upperImpressionKey,
+              lowerImpression: lowerImpressionKey,
+            },
             status: 'A faire',
-        };
-
-        try {
-            const response = await fetch('/api/tasks/createtask', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(taskData),
-            });
-
-
-            const data = await response.json();
-            onAdd(data);
-            onClose();
-
-            
-            setPatientName('');
-            setTaskType('');
-            setImpressionDate(new Date().toISOString().slice(0, 10));
-            setArcade('');
-            setQuantity(1);
-            setPriority('Normal');
-            setComment('');
-
-            setOpenSnackbar(true);
-            setSnackbarMessage('Task created successfully.');
-            setSnackbarSeverity('success');
-
+          };
+      
+          const response = await fetch('/api/tasks/createtask', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(taskData),
+          });
+      
+          if (!response.ok) {
+            throw new Error('Failed to add task.');
+          }
+      
+          const data = await response.json();
+          onAdd(data);
+          onClose();
+      
+          setPatientName('');
+          setTaskType('');
+          setImpressionDate(new Date().toISOString().slice(0, 10));
+          setArcade('');
+          setQuantity(1);
+          setPriority('Normal');
+          setComment('');
+      
+          setOpenSnackbar(true);
+          setSnackbarMessage('Task created successfully.');
+          setSnackbarSeverity('success');
         } catch (error) {
-            setOpenSnackbar(true);
-            setSnackbarMessage('Failed to add task.');
-            setSnackbarSeverity('error');
+          setOpenSnackbar(true);
+          setSnackbarMessage(error.message);
+          setSnackbarSeverity('error');
+        } finally {
+          setIsSubmitting(false);
         }
-        setIsSubmitting(false);
-    };
-
+      };
+      
+    
     return (
         <Paper elevation={3} style={{ padding: '20px', borderRadius: '15px' }}>
             <CssBaseline />
