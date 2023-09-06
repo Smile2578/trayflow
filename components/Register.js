@@ -2,6 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import styled from 'styled-components';
+import Image from 'next/image';
 
 const RegisterForm = styled.form`
   display: flex;
@@ -64,12 +65,12 @@ const Register = ({ onLogin }) => {
 
     // Ensure all fields are filled
     if (!lastName || !email || !password || !confirmPassword || !role || !accessCode) {
-      alert('Veuillez remplir tous les champs.');
+      alert(&apos;Veuillez remplir tous les champs.&apos;);
       return;
     }
 
     if (password !== confirmPassword) {
-      alert('Les mots de passe ne correspondent pas.');
+      alert(&apos;Les mots de passe ne correspondent pas.&apos;);
       return;
     }
 
@@ -95,7 +96,7 @@ const Register = ({ onLogin }) => {
     <RegisterContainer>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 1 }}>
         <RegisterForm onSubmit={handleSubmit}>
-        <Logo src="/trayflowlogo.png" alt="TrayFlow Logo" />
+          <Image src="/trayflowlogo.png" alt="TrayFlow Logo" width={150} height={150} /> {/* Replaced Logo with Image component */}
           <div className="mb-4">
             <label className="block text-black text-sm font-bold mb-2">Nom</label>
             <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline" />
@@ -120,13 +121,13 @@ const Register = ({ onLogin }) => {
             <label className="flex text-sm text-black font-bold mb-2">Rôle</label>
             <div>
               <RoleButton type="button" selected={role === 'Dentiste'} onClick={() => setRole('Dentiste')}>  {/* Added type="button" */}
-                <img src="/dentist.png" alt="Dentiste" />
+                <Image src="/dentist.png" alt="Dentiste" />
               </RoleButton>
               <RoleButton type="button" selected={role === 'Prothesiste'} onClick={() => setRole('Prothesiste')}>  {/* Added type="button" */}
-                <img src="/prothese.png" alt="Prothesiste" />
+                <Image src="/prothese.png" alt="Prothesiste" />
               </RoleButton>
               <RoleButton type="button" selected={role === 'Assistante'} onClick={() => setRole('Assistante')}>  {/* Added type="button" */}
-                <img src="/assistante.png" alt="Assistante" />
+                <Image src="/assistante.png" alt="Assistante" />
               </RoleButton>
             </div>
           </div>

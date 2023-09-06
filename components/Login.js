@@ -3,6 +3,7 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import styled from 'styled-components';
+import Image from 'next/image';
 
 const LoginForm = styled.form`
   display: flex;
@@ -56,7 +57,7 @@ const Login = ({ onRegister }) => {
     <LoginContainer>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 1 }}>
         <LoginForm onSubmit={handleSubmit}>
-          <Logo src="/trayflowlogo.png" alt="TrayFlow Logo" />
+          <Image src="/trayflowlogo.png" alt="TrayFlow Logo" width={150} height={150} />
           
           <div className="mb-4">
             <label className="block text-black text-sm font-bold mb-2">Utilisateur</label>
