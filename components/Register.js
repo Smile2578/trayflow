@@ -65,12 +65,12 @@ const Register = ({ onLogin }) => {
 
     // Ensure all fields are filled
     if (!lastName || !email || !password || !confirmPassword || !role || !accessCode) {
-      alert(&apos;Veuillez remplir tous les champs.&apos;);
+      alert('Veuillez remplir tous les champs.');
       return;
     }
 
     if (password !== confirmPassword) {
-      alert(&apos;Les mots de passe ne correspondent pas.&apos;);
+      alert('Les mots de passe ne correspondent pas.');
       return;
     }
 
