@@ -6,14 +6,14 @@ import Login from '../components/Login';
 import Register from '../components/Register';  // Assume you have a Register component
 
 const HomePage = () => {
-  const { data: session } = useSession();
+  const { data: status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (session) {
+    if (status === 'authenticated') {
       router.push('/dashboard');
     }
-  }, [session]);
+  }, [status, router]);
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
 
