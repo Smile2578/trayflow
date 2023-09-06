@@ -86,7 +86,7 @@ const Login = ({ onRegister }) => {
           </div>
           
           <div className="text-center">
-            <button onClick={onRegister} className="text-blue-500 hover:text-blue-700 underline">S'enregistrer</button>
+            <button onClick={onRegister} className="text-blue-500 hover:text-blue-700 underline">Créer mon compte</button>
           </div>
         </LoginForm>
       </motion.div>
