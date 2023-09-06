@@ -13,7 +13,7 @@ const HomePage = () => {
     if (session) {
       router.push('/dashboard');
     }
-  }, [session, router]);
+  }, [session]);
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
 
