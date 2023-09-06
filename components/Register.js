@@ -132,7 +132,7 @@ const Register = ({ onLogin }) => {
             </div>
           </div>
           <div className="mb-6 text-center">
-            <motion.button whileTap={{ scale: 0.9 }} type="submit" className="w-full px-4 py-2 font-bold text-white bg-blue-500 rounded-full hover:bg-blue-700 focus:outline-none focus:shadow-outline">S'inscrire</motion.button>
+            <motion.button whileTap={{ scale: 0.9 }} type="submit" className="w-full px-4 py-2 font-bold text-white bg-blue-500 rounded-full hover:bg-blue-700 focus:outline-none focus:shadow-outline">Confirmer</motion.button>
           </div>
           <div className="text-center">
             <button onClick={onLogin} className="text-blue-500 hover:text-blue-700 underline">Retour à la connexion</button>
