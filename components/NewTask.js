@@ -56,53 +56,55 @@ function NewTask({ onAdd, onClose }) {
         document.getElementById(type + 'FileName').innerText = '';
     }
 
-    const handleUpload = async (file) => {
-        if (file.size > 55 * 1024 * 1024) {  // 55 MB limit
-            alert('File size exceeds the 55 MB limit.');  // Frontend alert
-            return null;  // Return null instead of throwing an error
+    const handleUpload = async (file, impressionType) => {
+        if (file.size > 55 * 1024 * 1024) {
+          alert('File size exceeds the 55 MB limit.');
+          return null;
         }
         try {
-            const formData = new FormData();
-            formData.append('file', file);
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('patientName', patientName);
+          formData.append('taskType', taskType);
+          formData.append('impressionDate', impressionDate);
+          formData.append('impressionType', impressionType);
     
-            const response = await fetch('/api/uploads/uploadToGCS', {
-                method: 'POST',
-                body: formData
-            });
+          const response = await fetch('/api/uploads/uploadToGCS', {
+            method: 'POST',
+            body: formData
+          });
     
-            if (!response.ok) {
-                console.error('Failed to upload file.');
-                return null;  // Return null if upload fails
-            }
+          if (!response.ok) {
+            console.error('Failed to upload file.');
+            return null;
+          }
     
-            const data = await response.json();
-            return data.fileID;
+          const data = await response.json();
+          return data.filename;
         } catch (error) {
-            console.error('Failed to upload:', error);
-            return null;  // Return null if an error occurs
+          console.error('Failed to upload:', error);
+          return null;
         }
-    };
+      };
     
-      
-
-    const handleAddTask = async (e) => {
+      const handleAddTask = async (e) => {
         if (isSubmitting) return;
         setIsSubmitting(true);
         e.preventDefault();
-      
+    
         try {
           let upperImpressionKey = '';
           let lowerImpressionKey = '';
-      
+    
           if ((arcade === 'upper' || arcade === 'both') && upperFile) {
-            upperImpressionKey = await handleUpload(upperFile);
+            upperImpressionKey = await handleUpload(upperFile, 'upper');
             if (!upperImpressionKey) {
               throw new Error('Failed to upload upper impression.');
             }
           }
-      
+    
           if ((arcade === 'lower' || arcade === 'both') && lowerFile) {
-            lowerImpressionKey = await handleUpload(lowerFile);
+            lowerImpressionKey = await handleUpload(lowerFile, 'lower');
             if (!lowerImpressionKey) {
               throw new Error('Failed to upload lower impression.');
             }
@@ -117,11 +119,15 @@ function NewTask({ onAdd, onClose }) {
             priority,
             comment,
             arcade: {
-              upperImpression: upperImpressionKey,
-              lowerImpression: lowerImpressionKey,
-            },
+                upperImpression: upperFile ? upperFile.name : '',
+                lowerImpression: lowerFile ? lowerFile.name : '',
+                upperImpressionGCSKey: upperImpressionKey,
+                lowerImpressionGCSKey: lowerImpressionKey
+              },              
             status: 'A faire',
-          };
+        };
+        
+        
       
           const response = await fetch('/api/tasks/createtask', {
             method: 'POST',

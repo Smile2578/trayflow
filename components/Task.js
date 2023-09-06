@@ -1,7 +1,12 @@
 import { useDrag } from 'react-dnd';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CollectIcon from '@mui/icons-material/Archive';
+import WarningIcon from '@mui/icons-material/Warning';
+import PersonIcon from '@mui/icons-material/Person';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import WorkIcon from '@mui/icons-material/Work';
+import CommentIcon from '@mui/icons-material/Comment';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -9,13 +14,11 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 
-
 const TASK_TYPE = "TASK";
 
 function Task({ task, onDelete, onMove, category, onCollect }) {
     const [actionToConfirm, setActionToConfirm] = useState(null);
-    const [upperDownloadLink, setUpperDownloadLink] = useState(null);
-    const [lowerDownloadLink, setLowerDownloadLink] = useState(null);
+    const [downloading, setDownloading] = useState(false);
     const [{ isDragging }, dragRef] = useDrag({
         type: TASK_TYPE,
         item: { id: task._id },
@@ -23,7 +26,6 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
             isDragging: !!monitor.isDragging(),
         }),
     });
-
 
     const handleDelete = async () => {
         const response = await fetch(`/api/tasks/${task._id}`, { 
@@ -37,29 +39,14 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
     };
 
     const handleCollect = async () => {
-        try {
-          // Delete associated files when task is collected
-          if (task.upperImpression) {
+        if (task.upperImpression) {
             const response = await fetch(`/api/uploads/delete?key=${task.upperImpression}`, { method: 'DELETE' });
-            if (!response.ok) {
-              throw new Error('Failed to delete upper impression.');
-            }
-          }
-          if (task.lowerImpression) {
-            const response = await fetch(`/api/uploads/delete?key=${task.lowerImpression}`, { method: 'DELETE' });
-            if (!response.ok) {
-              throw new Error('Failed to delete lower impression.');
-            }
-          }
-      
-          // Call the passed-in onCollect function to update the task's status to "Récupéré"
-          onCollect(task._id);
-      
-        } catch (error) {
-          // Handle errors here
-          console.error(error);
         }
-      };
+        if (task.lowerImpression) {
+            const response = await fetch(`/api/uploads/delete?key=${task.lowerImpression}`, { method: 'DELETE' });
+        }
+        onCollect(task._id);
+    };
 
     const handleConfirm = () => {
         if (actionToConfirm === 'delete') {
@@ -71,9 +58,9 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
     };
 
     const handleDownload = async (key) => {
-        try {
-          const response = await fetch(`/api/uploads/download?key=${key}`);
-          if (response.ok) {
+        setDownloading(true);
+        const response = await fetch(`/api/uploads/download?key=${key}`);
+        if (response.ok) {
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -83,15 +70,11 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-          } else {
+        } else {
             alert('Failed to download file.');
-          }
-        } catch (error) {
-          console.error(error);
-          alert('An error occurred while downloading the file.');
         }
-      };
-      
+        setDownloading(false);
+    };
 
     let cardColor = "bg-gray-50";
     switch(task.taskType) {
@@ -102,7 +85,7 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
     }
 
     return (
-        <div ref={dragRef} className={`transform transition-transform duration-300 border rounded-lg p-4 shadow-md relative mb-4 ${cardColor} ${isDragging ? 'opacity-50 scale-105' : 'opacity-100 scale-100'}`}>
+        <div ref={dragRef} className={`transform transition-transform duration-300 border rounded-lg p-4 shadow-sm relative mb-4 bg-gradient-to-r from-white to-gray-100 ${isDragging ? 'opacity-50 scale-105' : 'opacity-100 scale-100'}`}>
             <div className="absolute top-2 right-2 cursor-pointer" onClick={() => setActionToConfirm('delete')}>
                 <DeleteIcon style={{ color: 'red' }} />
             </div>
@@ -123,29 +106,39 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
                     <Button onClick={handleConfirm} color="primary">Confirmer</Button>
                 </DialogActions>
             </Dialog>
-            <h3 className="font-semibold text-xl mb-2">{task.patientName}</h3>
-            <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded-md text-xs">{task.status}</span>
-            <p className="text-sm mb-2 mt-2"><span className="font-medium">Praticien:</span> {task.practitionerName}</p>
-            <p className="text-sm mb-2"><span className="font-medium">Type de Travail:</span> {task.taskType}</p>
-            <p className="text-sm mb-2"><span className="font-medium">Date Empreinte:</span> {new Date(task.impressionDate).toLocaleDateString()}</p>
-            <p className="text-sm mb-2"><span className="font-medium">Date Travail:</span> {new Date(task.fittingDate).toLocaleDateString()}</p>
-            <p className="text-sm mb-2"><span className="font-medium">Priorité:</span> {task.priority}</p>
-            {task.upperImpression || task.lowerImpression ? (
-                <>
-                    <p className="text-sm mb-2">
-                    <span className="font-medium">Empreinte:</span> 
-                    {task.upperImpression && <span onClick={() => handleDownload(task.upperImpression)} className="text-blue-500 hover:underline cursor-pointer ml-2">Haut</span>}
-                    {task.upperImpression && task.lowerImpression && ' & '}
-                    {task.lowerImpression && <span onClick={() => handleDownload(task.lowerImpression)} className="text-blue-500 hover:underline cursor-pointer">Bas</span>}
-                    </p>
-                </>
-                ) : (
-            <p className="text-sm mb-2">
-                <span className="font-medium">Empreinte:</span> {task.upperImpression ? 'Haut' : task.lowerImpression ? 'Bas' : 'Haut & Bas'}
+            <h3 className="font-semibold text-xl text-blue-300 mb-2"><PersonIcon fontSize="small" color="primary" /> {task.patientName}</h3>
+            <p className="text-sm mb-2 mt-2"><WorkIcon fontSize="small" color="primary" /> Praticien: {task.practitionerName}</p>
+            <p className="text-sm mb-2"> Type de Travail: {task.taskType}</p>
+            <p className="text-sm mb-2"> Date Empreinte: {new Date(task.impressionDate).toLocaleDateString()}</p>
+            <p className="text-sm mb-2"><CalendarTodayIcon fontSize="small" color="primary" /> Date Travail: {new Date(task.fittingDate).toLocaleDateString()}</p>
+            <p className="text-sm mb-2"> Priorité: {task.priority}
+                {task.priority === "Urgent" && <WarningIcon fontSize="small" color="error" style={{ marginLeft: '8px' }} />}
             </p>
-        )}
-            <p className="text-sm mb-2"><span className="font-medium">Quantité:</span> {task.quantity}</p>
-            {task.comment && <p className="text-sm italic">{task.comment}</p>}
+            {task.upperImpression && task.lowerImpression ? (
+                <p className="text-sm mb-2">
+                    Empreinte: 
+                    <span onClick={() => handleDownload(task.arcade.upperImpressionGCSKey)} className="text-blue-500 hover:underline cursor-pointer ml-2">Haut</span>
+                    {' & '}
+                    <span onClick={() => handleDownload(task.arcade.lowerImpressionGCSKey)} className="text-blue-500 hover:underline cursor-pointer ml-2">Bas</span>
+                </p>
+            ) : (
+                <>
+                    {task.arcade.upperImpression && (
+                        <p className="text-sm mb-2">
+                            Empreinte: 
+                            <span onClick={() => handleDownload(task.arcade.upperImpression)} className="text-blue-500 hover:underline cursor-pointer ml-2">Haut</span>
+                        </p>
+                    )}
+                    {task.arcade.lowerImpression && (
+                        <p className="text-sm mb-2">
+                            Empreinte: 
+                            <span onClick={() => handleDownload(task.arcade.lowerImpression)} className="text-blue-500 hover:underline cursor-pointer ml-2">Bas</span>
+                        </p>
+                    )}
+                </>
+            )}
+            <p className="text-sm mb-2"> Quantité: {task.quantity}</p>
+            {task.comment && <p className="text-sm italic"><CommentIcon fontSize="small" color="primary" /> {task.comment}</p>}
         </div>
     );    
 }

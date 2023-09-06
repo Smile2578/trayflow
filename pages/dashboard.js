@@ -9,7 +9,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
+    <div className="min-h-screen bg-gradient-to-r from-blue-100 to-green-100">
       <Dashboard session={session} onLogout={handleLogout}/>
     </div>
   );

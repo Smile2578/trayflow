@@ -15,18 +15,20 @@ export default async function handler(req, res) {
       practitionerName,
       taskType,
       impressionDate,
-      fittingDate, 
-      arcade: {
-        upperImpression,
-        upperImpressionReady,
-        lowerImpression,
-        lowerImpressionReady
-      },
+      fittingDate,
+      arcade,
       quantity,
       priority,
       comment,
       status
-    } = req.body;
+  } = req.body;
+  
+  const {
+      upperImpression,
+      upperImpressionReady = false, // Default values in case they aren't provided
+      lowerImpression,
+      lowerImpressionReady = false
+  } = arcade || {}; // Default to an empty object in case arcade isn't provided
 
     try {
       const newTask = new Task({
