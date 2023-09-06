@@ -34,7 +34,7 @@ const HomePage = () => {
 
   return (
     <div>
-      
+      {!showLogin && !showRegister && <Welcome onFinishedTyping={showLoginHandler} />}
       {showLogin && <Login onRegister={showRegisterHandler} />}
       {showRegister && <Register onLogin={showLoginAfterRegister} />}
     </div>
