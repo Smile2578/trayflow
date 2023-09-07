@@ -15,9 +15,11 @@ const upload = multer({
 
 export default async function handler(req, res) {
   await initGoogleCloudStorage();
-
+  console.log("Google Cloud Storage initialized in uploadToGCS route.");
   if (req.method === 'GET') {
+    console.log("GET method triggered in uploadToGCS route.");
     const filename = req.query.filename;
+    console.log("Filename:", filename);
     if (!filename) {
       return res.status(400).json({ error: 'Filename is required to generate a signed URL.' });
     }
