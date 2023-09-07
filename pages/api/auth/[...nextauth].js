@@ -16,14 +16,15 @@ export default NextAuth({
         try {
           // Connect to the database
           await connectToDatabase();
-
+          console.log("Received credentials:", credentials);
           const user = await UserModel.findOne({ userName: credentials.userName }).exec();
-
+          console.log("Fetched user:", user);
           if (!user) {
             throw new Error('Identifiants incorrects');
           }
 
           const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+          console.log("Password validation successful");
 
           if (!isPasswordValid) {
             throw new Error('Identifiants incorrects');
