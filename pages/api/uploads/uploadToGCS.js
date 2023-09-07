@@ -1,5 +1,5 @@
 import multer from 'multer';
-import { initGoogleCloudStorage, getGCSBucket, generateSignedUrl } from '../../../utils/gcs';
+import { initGoogleCloudStorage, getGCSBucket, generateV4ReadSignedUrl } from '../../../utils/gcs';
 
 export const config = {
   api: {
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Filename is required to generate a signed URL.' });
     }
     try {
-      const signedUrl = await generateSignedUrl(filename);
+      const signedUrl = await generateV4ReadSignedUrl(filename);
       return res.status(200).json({ url: signedUrl });
     } catch (error) {
       console.error("GET method error:", error.message);
