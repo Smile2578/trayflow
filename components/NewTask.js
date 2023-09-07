@@ -57,35 +57,28 @@ function NewTask({ onAdd, onClose }) {
     }
 
     const handleUpload = async (file, impressionType) => {
-        if (file.size > 55 * 1024 * 1024) {
-          alert('File size exceeds the 55 MB limit.');
-          return null;
-        }
-        try {
-          const formData = new FormData();
-          formData.append('file', file);
-          formData.append('patientName', patientName);
-          formData.append('taskType', taskType);
-          formData.append('impressionDate', impressionDate);
-          formData.append('impressionType', impressionType);
-    
-          const response = await fetch('/api/uploads/uploadToGCS', {
-            method: 'POST',
-            body: formData
-          });
-    
-          if (!response.ok) {
-            console.error('Failed to upload file.');
-            return null;
-          }
-    
-          const data = await response.json();
-          return data.filename;
-        } catch (error) {
-          console.error('Failed to upload:', error);
-          return null;
-        }
-      };
+      if (file.size > 55 * 1024 * 1024) {
+        alert('File size exceeds the 55 MB limit.');
+        return null;
+      }
+
+      const response = await fetch(`/api/uploads/uploadToGCS?filename=${file.name}`);
+      const { url: signedUrl } = await response.json();
+
+      const uploadResponse = await fetch(signedUrl, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Upload to GCS failed.');
+      }
+
+      return file.name;
+    };
     
       const handleAddTask = async (e) => {
         if (isSubmitting) return;
