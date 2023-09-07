@@ -6,11 +6,23 @@ let bucket;
 const { GOOGLE_CLOUD_KEYFILE, BUCKET_NAME } = process.env;
 
 export async function initGoogleCloudStorage() {
-  storage = new Storage({
-    keyFilename: GOOGLE_CLOUD_KEYFILE
-  });
-  bucket = storage.bucket(BUCKET_NAME);
+  try {
+    console.log("Initializing Google Cloud Storage.");
+
+    const googleCloudConfig = JSON.parse(process.env.GOOGLE_CLOUD_KEYFILE);
+
+    storage = new Storage({
+      credentials: googleCloudConfig
+    });
+
+    bucket = storage.bucket(process.env.BUCKET_NAME);
+    console.log("Google Cloud Storage initialized.");
+  } catch (error) {
+    console.error("Failed to initialize Google Cloud Storage:", error);
+    throw error;
+  }
 }
+
 
 export function getGCSBucket() {
   if (!bucket) {
