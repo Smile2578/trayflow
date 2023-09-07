@@ -7,6 +7,7 @@ import Register from '../components/Register';  // Assume you have a Register co
 
 const HomePage = () => {
   const { data: status } = useSession();
+  console.log("Session status:", status);
   const router = useRouter();
 
   useEffect(() => {
