@@ -6,17 +6,10 @@ let bucket;
 const { GOOGLE_CLOUD_KEYFILE, BUCKET_NAME } = process.env;
 
 export async function initGoogleCloudStorage() {
-  try {
-    console.log("Initializing Google Cloud Storage.");
-    storage = new Storage({
-      keyFilename: GOOGLE_CLOUD_KEYFILE
-    });
-    bucket = storage.bucket(BUCKET_NAME);
-    console.log("Google Cloud Storage initialized.");
-  } catch (error) {
-    console.error("Failed to initialize Google Cloud Storage:", error);
-    throw error;
-  }
+  storage = new Storage({
+    keyFilename: GOOGLE_CLOUD_KEYFILE
+  });
+  bucket = storage.bucket(BUCKET_NAME);
 }
 
 export function getGCSBucket() {
@@ -24,4 +17,9 @@ export function getGCSBucket() {
     throw new Error("Google Cloud Storage is not initialized.");
   }
   return bucket;
+}
+
+export async function generateSignedUrl(filename) {
+  const [url] = await bucket.file(filename).createResumableUpload();
+  return url;
 }
