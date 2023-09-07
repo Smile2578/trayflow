@@ -38,11 +38,13 @@ const Login = ({ onRegister }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    console.log("Login button clicked");
 
     const result = await signIn('credentials', {
       userName,
       password,
-      redirect: false  // This ensures we handle the redirect programmatically
+      redirect: false
+      console.log("signIn result:", result);// This ensures we handle the redirect programmatically
     });
 
     if (result.error) {
