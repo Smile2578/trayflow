@@ -47,8 +47,6 @@ const Login = ({ onRegister }) => {
 
     if (result.error) {
       setErrorMessage(result.error);
-    } else {
-      router.push('/dashboard');  // Redirect to dashboard if login is successful
     }
   };
 
