@@ -49,7 +49,9 @@ const Login = ({ onRegister }) => {
 
     if (result.error) {
       setErrorMessage(result.error);
-    }
+    } else {
+      router.push('/dashboard');
+                  }
   };
 
 
