@@ -57,6 +57,7 @@ function NewTask({ onAdd, onClose }) {
     }
 
     const handleUpload = async (file, impressionType) => {
+        console.log("Uploading file:", file.name);
       if (file.size > 55 * 1024 * 1024) {
         alert('File size exceeds the 55 MB limit.');
         return null;
