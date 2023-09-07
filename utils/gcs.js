@@ -17,6 +17,7 @@ export async function initGoogleCloudStorage() {
 
     bucket = storage.bucket(process.env.BUCKET_NAME);
     console.log("Google Cloud Storage initialized.");
+    console.log("Connected to GCS Bucket:", bucket.name);
   } catch (error) {
     console.error("Failed to initialize Google Cloud Storage:", error);
     throw error;
