@@ -25,8 +25,10 @@ export default async function handler(req, res) {
       const signedUrl = await generateSignedUrl(filename);
       return res.status(200).json({ url: signedUrl });
     } catch (error) {
-      return res.status(500).json({ error: 'Failed to generate signed URL.' });
-    }
+    console.error("Error in GET method:", error.message);
+    console.error(error.stack);  // Log the stack trace
+    return res.status(500).json({ error: 'Failed to generate signed URL.' });
+  }
   }
 
   upload.single('file')(req, res, async (err) => {
