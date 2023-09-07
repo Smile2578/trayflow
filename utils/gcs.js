@@ -1,53 +1,40 @@
 import { Storage } from '@google-cloud/storage';
+import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 
+const client = new SecretManagerServiceClient();
 let storage;
 let bucket;
 
-const { GOOGLE_CLOUD_KEYFILE, BUCKET_NAME } = process.env;
-
-export async function initGoogleCloudStorage() {
-  try {
-    console.log("Initializing Google Cloud Storage with bucket:", BUCKET_NAME);
-
-    if (!GOOGLE_CLOUD_KEYFILE) {
-      console.error("GOOGLE_CLOUD_KEYFILE is not set.");
-      throw new Error("GOOGLE_CLOUD_KEYFILE is missing.");
-    }
-
-    let googleCloudConfig;
-    try {
-      googleCloudConfig = JSON.parse(GOOGLE_CLOUD_KEYFILE);
-    } catch (jsonError) {
-      console.error("Error parsing GOOGLE_CLOUD_KEYFILE:", GOOGLE_CLOUD_KEYFILE);
-      throw jsonError;
-    }
-
-    storage = new Storage({
-      credentials: googleCloudConfig
+async function getSecret() {
+    const [version] = await client.accessSecretVersion({
+        name: 'projects/197018611744/secrets/trayflow_service_account/versions/latest',
     });
 
-    bucket = storage.bucket(BUCKET_NAME);
-    console.log("Google Cloud Storage initialized.");
-  } catch (error) {
-    console.error("Failed to initialize Google Cloud Storage:", error.message);
-    throw error;
-  }
+    const secretData = version.payload.data.toString('utf8');
+    return JSON.parse(secretData);
+}
+
+export async function initGoogleCloudStorage() {
+    try {
+        console.log("Initializing Google Cloud Storage with bucket:", BUCKET_NAME);
+
+        const googleCloudConfig = await getSecret();
+
+        storage = new Storage({
+            credentials: googleCloudConfig
+        });
+
+        bucket = storage.bucket(BUCKET_NAME);
+        console.log("Google Cloud Storage initialized.");
+    } catch (error) {
+        console.error("Failed to initialize Google Cloud Storage:", error.message);
+        throw error;
+    }
 }
 
 export function getGCSBucket() {
-  if (!bucket) {
-    throw new Error("Google Cloud Storage is not initialized.");
-  }
-  return bucket;
-}
-
-export async function generateV4ReadSignedUrl(filename) {
-  const options = {
-    version: 'v4',
-    action: 'read',
-    expires: Date.now() + 15 * 60 * 1000,  // 15 minutes
-  };
-
-  const [signedUrl] = await getGCSBucket().file(filename).getSignedUrl(options);
-  return signedUrl;
+    if (!bucket) {
+        throw new Error("Google Cloud Storage is not initialized.");
+    }
+    return bucket;
 }
