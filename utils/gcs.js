@@ -33,6 +33,9 @@ export function getGCSBucket() {
 
 export async function generateSignedUrl(filename) {
   try {
+    console.log("Generating signed URL for:", filename);
+    console.log("Using bucket:", bucket.name);  // Log the bucket name
+
     const [url] = await bucket.file(filename).createResumableUpload();
     return url;
   } catch (error) {
