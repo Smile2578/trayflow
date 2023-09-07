@@ -35,6 +35,7 @@ export async function initGoogleCloudStorage() {
 }
 
 export function getGCSBucket() {
+  
   if (!bucket) {
     throw new Error("Google Cloud Storage is not initialized.");
   }
