@@ -14,12 +14,15 @@ const upload = multer({
 });
 
 export default async function handler(req, res) {
-  await initGoogleCloudStorage();
-  console.log("Google Cloud Storage initialized in uploadToGCS route.");
+  try {
+    await initGoogleCloudStorage();
+  } catch (error) {
+    console.error("Initialization error:", error.message);
+    return res.status(500).json({ error: 'Failed to initialize storage.' });
+  }
+
   if (req.method === 'GET') {
-    console.log("GET method triggered in uploadToGCS route.");
     const filename = req.query.filename;
-    console.log("Filename:", filename);
     if (!filename) {
       return res.status(400).json({ error: 'Filename is required to generate a signed URL.' });
     }
@@ -27,16 +30,18 @@ export default async function handler(req, res) {
       const signedUrl = await generateSignedUrl(filename);
       return res.status(200).json({ url: signedUrl });
     } catch (error) {
-    console.error("Error in GET method:", error.message);
-    console.error(error.stack);  // Log the stack trace
-    return res.status(500).json({ error: 'Failed to generate signed URL.' });
-  }
+      console.error("GET method error:", error.message);
+      console.error("Error stack:", error.stack);
+      return res.status(500).json({ error: 'Failed to generate signed URL.' });
+    }
   }
 
   upload.single('file')(req, res, async (err) => {
     if (err instanceof multer.MulterError) {
+      console.error("Multer error:", err.message);
       return res.status(400).json({ error: err.message });
     } else if (err) {
+      console.error("General error:", err.message);
       return res.status(500).json({ error: err.message });
     }
 
@@ -49,6 +54,7 @@ export default async function handler(req, res) {
       const blobStream = blob.createWriteStream();
 
       blobStream.on('error', (blobErr) => {
+        console.error("Blob stream error:", blobErr.message);
         res.status(500).json({ error: blobErr.message });
       });
 
@@ -58,6 +64,7 @@ export default async function handler(req, res) {
 
       blobStream.end(req.file.buffer);
     } catch (storageErr) {
+      console.error("Storage error:", storageErr.message);
       res.status(500).json({ error: storageErr.message });
     }
   });
