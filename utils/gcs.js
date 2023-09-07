@@ -36,7 +36,8 @@ export async function generateSignedUrl(filename) {
     const [url] = await bucket.file(filename).createResumableUpload();
     return url;
   } catch (error) {
-    console.error("Error generating signed URL:", error);  // Log the error here
+    console.error("Error generating signed URL:", error.message);
+    console.error(error.stack);  // Log the stack trace
     throw error;
   }
 }
