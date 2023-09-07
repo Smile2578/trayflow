@@ -44,8 +44,8 @@ const Login = ({ onRegister }) => {
       userName,
       password,
       redirect: false
-      console.log("signIn result:", result);// This ensures we handle the redirect programmatically
     });
+    console.log("signIn result:", result);
 
     if (result.error) {
       setErrorMessage(result.error);
