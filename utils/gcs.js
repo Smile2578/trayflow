@@ -1,16 +1,17 @@
 import { Storage } from '@google-cloud/storage';
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 
+const { BUCKET_NAME,GCP_SERVICE_ACCOUNT } = process.env;
+
 const gcpCredentials = JSON.parse(GCP_SERVICE_ACCOUNT);
 const client = new SecretManagerServiceClient({
     credentials: gcpCredentials
 });
-
 let storage;
 let bucket;
 
 // Use the correct environment variable name
-const { BUCKET_NAME } = process.env;
+
 
 async function getSecret(secretName) {
   try {
