@@ -1,7 +1,11 @@
 import { Storage } from '@google-cloud/storage';
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 
-const client = new SecretManagerServiceClient();
+const gcpCredentials = JSON.parse(GCP_SERVICE_ACCOUNT);
+const client = new SecretManagerServiceClient({
+    credentials: gcpCredentials
+});
+
 let storage;
 let bucket;
 
