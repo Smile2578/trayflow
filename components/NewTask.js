@@ -40,6 +40,9 @@ function NewTask({ onAdd, onClose }) {
 
     const handleFileChange = (e, type) => {
         const file = e.target.files[0];
+        console.log("File Name:", file.name);    // Log the file name here
+        console.log("Content Type:", file.type);  // Log the content type here
+    
         if (file) {
             document.getElementById(type + 'FileName').innerText = file.name;
         }
@@ -50,15 +53,12 @@ function NewTask({ onAdd, onClose }) {
             setLowerFile(file);
         }
     };
+    
 
     const handleFileRemove = (type) => {
         document.getElementById(type + 'Impression').value = '';
         document.getElementById(type + 'FileName').innerText = '';
     }
-
-    console.log("File Name:", file.name);
-    console.log("Content Type:", file.type);
-
 
     const handleUpload = async (file) => {
         const response = await fetch(`/api/uploads/uploadToGCS`, {
