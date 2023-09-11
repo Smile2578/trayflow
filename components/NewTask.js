@@ -40,10 +40,18 @@ function NewTask({ onAdd, onClose }) {
 
     const handleFileChange = (e, type) => {
         const file = e.target.files[0];
-        console.log("File Name:", file.name);    // Log the file name here
-        console.log("Content Type:", file.type);  // Log the content type here
+        let contentType = '';  // initialize to empty string
     
         if (file) {
+            if (file.name.endsWith('.stl')) {
+                contentType = 'model/stl';
+            } else if (file.name.endsWith('.jpg')) {
+                contentType = 'image/jpeg';
+            } else {
+                // Handle other file types if necessary
+            }
+            
+            console.log("Set Content Type:", contentType);
             document.getElementById(type + 'FileName').innerText = file.name;
         }
     
