@@ -22,27 +22,35 @@ async function getSecret(secretName) {
 }
 
 export async function initGoogleCloudStorage() {
-  if (bucket) {
-      console.log("GCS already initialized.");
-      return;
-  }
+    if (bucket) {
+        console.log("GCS already initialized.");
+        return;
+    }
 
-  try {
-      console.log("Initializing Google Cloud Storage with bucket:", BUCKET_NAME);
+    if (!process.env.GOOGLE_PROJECTID) {
+        const error = "Environment variable GOOGLE_PROJECTID is not set.";
+        console.error(error);
+        throw new Error(error);
+    }
 
-      const googleCloudConfig = await getSecret(secretName);
+    try {
+        console.log("Initializing Google Cloud Storage with bucket:", BUCKET_NAME);
 
-      storage = new Storage({
-          credentials: googleCloudConfig
-      });
+        const secretName = `projects/${process.env.GOOGLE_PROJECTID}/secrets/trayflow_service_account/versions/latest`;
+        const googleCloudConfig = await getSecret(secretName);
 
-      bucket = storage.bucket(BUCKET_NAME);
-      console.log("Google Cloud Storage initialized.");
-  } catch (error) {
-      console.error("Failed to initialize Google Cloud Storage:", error.message);
-      throw error;
-  }
+        storage = new Storage({
+            credentials: googleCloudConfig
+        });
+
+        bucket = storage.bucket(BUCKET_NAME);
+        console.log("Google Cloud Storage initialized.");
+    } catch (error) {
+        console.error("Failed to initialize Google Cloud Storage:", error.message);
+        throw error;
+    }
 }
+
 
 export function getGCSBucket() {
   if (!bucket) {
