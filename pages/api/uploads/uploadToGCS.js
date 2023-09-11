@@ -5,47 +5,30 @@ export default async function handler(request, response) {
         const { fileName } = request.body;
 
         if (request.method === 'POST') {
-            console.log("Received fileName:", fileName);
+            console.log("Received fileName for POST:", fileName);
             
             if (!fileName) {
-                return response.status(400).json({ error: 'Invalid input' });
+                console.error("Error: fileName is not provided in the request body.");
+                return response.status(400).json({ error: 'Invalid input: fileName is required' });
             }
 
             const signedUrl = await generateV4UploadSignedUrl(fileName);
+            console.log("Generated signed URL for POST:", signedUrl);
             return response.status(200).json({ signedUrl });
-        } 
 
-        else if (request.method === 'PUT') {
-            let bucket;
-            try {
-                bucket = getGCSBucket();
-            } catch (error) {
-                console.error("Error fetching GCS bucket:", error.message);
-                return response.status(500).json({ error: 'GCS Bucket Initialization Error' });
-            }
+        } else if (request.method === 'PUT') {
+            // This part is not necessary since the frontend is uploading directly to GCS using the signed URL.
+            // However, to ensure that any unwanted PUT requests are handled, let's add a simple message.
+            console.error("Error: Direct file upload attempted to backend instead of using the signed URL.");
+            return response.status(405).json({ error: 'Direct file upload should use the signed URL. This method is not supported.' });
 
-            const file = bucket.file(fileName);
-            const stream = file.createWriteStream({
-                resumable: false,
-            });
-
-            request.pipe(stream);
-
-            stream.on('error', (err) => {
-                console.error("Error during stream:", err);
-                return response.status(500).json({ error: 'Error uploading to GCS' });
-            });
-
-            stream.on('finish', () => {
-                return response.status(200).json({ message: 'Uploaded successfully' });
-            });
-        } 
-
-        else {
+        } else {
+            console.error(`Error: Unsupported HTTP method ${request.method} used.`);
             return response.status(405).json({ error: 'Method not allowed' });
         }
+
     } catch (error) {
         console.error("Error in uploadToGCS:", error.message);
-        return response.status(500).json({ error: 'Internal Server Error' });
+        return response.status(500).json({ error: 'Internal Server Error', detailedError: error.message });
     }
 }

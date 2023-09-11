@@ -44,8 +44,10 @@ export function getGCSBucket() {
     console.error("Bucket is not initialized.");
     throw new Error("Google Cloud Storage is not initialized.");
   }
+  console.log("Retrieved GCS bucket:", BUCKET_NAME);
   return bucket;
 }
+
 
 
 export async function generateV4ReadSignedUrl(filename) {
@@ -59,12 +61,17 @@ export async function generateV4ReadSignedUrl(filename) {
 }
 
 export async function generateV4UploadSignedUrl(filename, contentType) {
-  const [url] = await bucket.file(filename).getSignedUrl({
-    version: 'v4',
-    action: 'write',
-    contentType: contentType,
-    expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-  });
-
-  return url;
+  try {
+    const [url] = await bucket.file(filename).getSignedUrl({
+      version: 'v4',
+      action: 'write',
+      contentType: contentType,
+      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+    });
+    console.log(`Generated signed URL for ${filename}:`, url);
+    return url;
+  } catch (error) {
+    console.error(`Error generating signed URL for ${filename}:`, error.message);
+    throw error;
+  }
 }
