@@ -60,18 +60,13 @@ export async function generateV4ReadSignedUrl(filename) {
   return url;
 }
 
-export async function generateV4UploadSignedUrl(filename, contentType) {
-  try {
-    const [url] = await bucket.file(filename).getSignedUrl({
-      version: 'v4',
-      action: 'write',
-      contentType: contentType,
-      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-    });
-    console.log(`Generated signed URL for ${filename}:`, url);
-    return url;
-  } catch (error) {
-    console.error(`Error generating signed URL for ${filename}:`, error.message);
-    throw error;
-  }
+export async function generateV4UploadSignedUrl(filename) {
+  const [url] = await bucket.file(filename).getSignedUrl({
+    version: 'v4',
+    action: 'write',
+    contentType: 'application/octet-stream',  // This will allow any file type. Modify if needed.
+    expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+  });
+
+  return url;
 }
