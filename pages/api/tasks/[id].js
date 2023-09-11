@@ -2,7 +2,9 @@ import connectToDatabase from '../../../utils/db';
 import Task from '../../../models/Task';
 import { Storage } from '@google-cloud/storage';
 
-const storage = new Storage();
+const storage = new Storage({
+  credentials: JSON.parse(process.env.GCP_SERVICE_ACCOUNT)
+});
 
 export default async function handler(req, res) {
   const { id } = req.query;

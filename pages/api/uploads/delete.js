@@ -1,4 +1,9 @@
-import { initGoogleCloudStorage, getGCSBucket } from '../../../utils/gcs';
+import { initGoogleCloudStorage, getGCSBucket } from '../../../utils/gcs'
+
+const storage = new Storage({
+  credentials: JSON.parse(process.env.GCP_SERVICE_ACCOUNT)
+});
+;
 
 export default async function handler(req, res) {
   await initGoogleCloudStorage();  // Initialize GCS
