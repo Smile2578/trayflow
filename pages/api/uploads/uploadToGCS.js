@@ -1,4 +1,8 @@
-import { getGCSBucket, generateV4UploadSignedUrl } from '../../../utils/gcs';
+import { initGoogleCloudStorage, getGCSBucket, generateV4UploadSignedUrl } from '../../../utils/gcs';
+
+
+initGoogleCloudStorage();
+
 
 export default async function handler(request, response) {
     try {
