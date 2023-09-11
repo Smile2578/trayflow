@@ -92,7 +92,7 @@ function Dashboard({ onLogout }) {
     const doneTasks = filteredTasks.filter(task => task.status === 'Prêt');
 
     return (
-        <Container className="bg-gradient-to-r from-peach-200 to-peach-400 p-4 rounded-lg">
+        <Container className="bg-gradient-to-r from-blue-100 to-green-100 p-4 rounded-lg">
             <Box className="flex justify-between items-center mb-8">
                 <Image src="/trayflowlogo.png" alt="Trayflow Logo" width={150} height={50} />
                 <div className="flex space-x-4">

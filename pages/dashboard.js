@@ -9,10 +9,10 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-peach-100 to-peach-300">
-        <Dashboard session={session} onLogout={handleLogout}/>
+    <div className="min-h-screen bg-gradient-to-r from-blue-100 to-green-100">
+      <Dashboard session={session} onLogout={handleLogout}/>
     </div>
-);
+  );
 }
 
 export async function getServerSideProps(context) {
