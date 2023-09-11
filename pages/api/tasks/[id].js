@@ -1,5 +1,8 @@
 import connectToDatabase from '../../../utils/db';
 import Task from '../../../models/Task';
+import { Storage } from '@google-cloud/storage';
+
+const storage = new Storage();
 
 export default async function handler(req, res) {
   const { id } = req.query;
@@ -69,18 +72,36 @@ export default async function handler(req, res) {
       }
       break;
 
-    case 'DELETE':
-      try {
-        const deletedTask = await Task.findByIdAndRemove(id);
-        if (!deletedTask) {
-          return res.status(404).json({ message: 'Tache non trouvé' });
+      case 'DELETE':
+        try {
+          const taskToDelete = await Task.findById(id);
+          if (!taskToDelete) {
+            return res.status(404).json({ message: 'Tache non trouvé' });
+          }
+      
+          // Delete files from Google Cloud Storage
+          const filesToDelete = [];  // Collect paths/URLs of files to delete
+      
+          if (taskToDelete.arcade && taskToDelete.arcade.upperImpressionGCSKey) {
+            filesToDelete.push(taskToDelete.arcade.upperImpressionGCSKey);
+          }
+          if (taskToDelete.arcade && taskToDelete.arcade.lowerImpressionGCSKey) {
+            filesToDelete.push(taskToDelete.arcade.lowerImpressionGCSKey);
+          }
+      
+          for (let filePath of filesToDelete) {
+            await storage.bucket(process.env.BUCKET_NAME).file(filePath).delete();  // Replace 'YOUR_BUCKET_NAME' with your actual bucket name
+          }
+      
+          // Now, delete the task from the database
+          await Task.findByIdAndRemove(id);
+      
+          res.status(200).json({ message: 'Tâche et fichiers associés supprimés !' });
+        } catch (error) {
+          console.error("Error deleting task and associated files:", error);
+          res.status(500).json({ message: 'Internal Server Error', error: error.message });
         }
-        res.status(200).json({ message: 'Tâche supprimée !' });
-      } catch (error) {
-        console.error("Error deleting task:", error);
-        res.status(500).json({ message: 'Internal Server Error', error: error.message });
-      }
-      break;
+        break;
 
     case 'POST':
       if (req.body.action && req.body.action === 'move') {
