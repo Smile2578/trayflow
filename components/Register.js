@@ -77,20 +77,33 @@ const Register = ({ onLogin }) => {
     const finalLastName = lastName;
 
     try {
-      const response = await axios.post('http://localhost:3000/api/users/register', {
-        userName: finalLastName, 
-        email, 
-        password, 
-        passwordConfirmation: confirmPassword,
-        role,
-        accessCode
+      const response = await fetch('/api/users/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // If you need to include the CSRF token in headers, you can do it here
+        },
+        body: JSON.stringify({
+          userName: finalLastName, 
+          email, 
+          password, 
+          passwordConfirmation: confirmPassword,
+          role,
+          accessCode
+        }),
       });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Something went wrong');
+      }
+
       setConfirmationMessage('Inscription réussie ! Redirection vers la connexion...');
       setTimeout(onLogin, 2000);  // Redirect to login after 2 seconds
     } catch (error) {
-      console.error("Erreur lors de l'enregistrement", error);
+      console.error("Erreur lors de l'enregistrement", error.message);
     }
-  };
+};
 
   return (
     <RegisterContainer>
