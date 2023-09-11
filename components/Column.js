@@ -48,7 +48,7 @@ function Column({ title, category, tasks, onDelete, onMove, onAddTask, onCollect
     }
 
     return (
-        <Box ref={dropRef} className={`flex flex-col w-1/3 ${columnColor} p-6 rounded-lg shadow-md space-y-4`}>
+        <Box ref={dropRef} className={`flex flex-col w-1/3 bg-gradient-to-b from-peach-300 to-peach-500 p-6 rounded-lg shadow-md space-y-4`}>
             <div className="flex justify-between items-center mb-4">
                 <Typography variant="h6" className="text-blue-700 font-bold">
                     {title}
@@ -75,7 +75,7 @@ function Column({ title, category, tasks, onDelete, onMove, onAddTask, onCollect
                             task={task}
                             onDelete={onDelete}
                             onMove={onMove}
-                            onCollect={onCollect}   // Pass onCollect prop to Task
+                            onCollect={onCollect}   
                             category={category}
                         />
                     ))
