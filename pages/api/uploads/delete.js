@@ -1,9 +1,5 @@
 import { initGoogleCloudStorage, getGCSBucket } from '../../../utils/gcs';
 
-const storage = new Storage({
-  credentials: JSON.parse(process.env.GCP_SERVICE_ACCOUNT)
-});
-
 export default async function handler(req, res) {
   await initGoogleCloudStorage();  // Initialize GCS
   const bucket = getGCSBucket();  // Get the initialized bucket
@@ -16,7 +12,7 @@ export default async function handler(req, res) {
     }
 
     // Extract the object name from the key
-    const objectName = new URL(key).pathname.split("/").pop();
+    const objectName = decodeURIComponent(key.split('/').pop());
 
     const file = bucket.file(objectName);
     file.delete()
@@ -25,7 +21,7 @@ export default async function handler(req, res) {
       })
       .catch((err) => {
         console.error(`Deletion Error: ${err}`);
-        res.status(500).json({ error: 'Deletion failed' });
+        res.status(500).json({ error: 'Deletion failed', detailedError: err.message });
       });
   } else {
     return res.status(405).json({ error: 'Method not allowed.' });
