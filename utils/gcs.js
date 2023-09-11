@@ -9,6 +9,7 @@ const client = new SecretManagerServiceClient({
 let storage;
 let bucket;
 
+
 async function getSecret(secretName) {
   try {
     const [version] = await client.accessSecretVersion({ name: secretName });
@@ -21,52 +22,73 @@ async function getSecret(secretName) {
 }
 
 export async function initGoogleCloudStorage() {
+  if (bucket) {
+      console.log("GCS already initialized.");
+      return;
+  }
+
   try {
-    console.log("Initializing Google Cloud Storage with bucket:", BUCKET_NAME);
+      console.log("Initializing Google Cloud Storage with bucket:", BUCKET_NAME);
 
-    const secretName = `projects/${process.env.GOOGLE_PROJECTID}/secrets/trayflow_service_account/versions/latest`;
-    const googleCloudConfig = await getSecret(secretName);
+      const googleCloudConfig = await getSecret(secretName);
 
-    storage = new Storage({
-      credentials: googleCloudConfig
-    });
+      storage = new Storage({
+          credentials: googleCloudConfig
+      });
 
-    bucket = storage.bucket(BUCKET_NAME);
-    console.log("Google Cloud Storage initialized.");
+      bucket = storage.bucket(BUCKET_NAME);
+      console.log("Google Cloud Storage initialized.");
   } catch (error) {
-    console.error("Failed to initialize Google Cloud Storage:", error.message);
-    throw error;
+      console.error("Failed to initialize Google Cloud Storage:", error.message);
+      throw error;
   }
 }
 
 export function getGCSBucket() {
   if (!bucket) {
-    console.error("Bucket is not initialized.");
-    throw new Error("Google Cloud Storage is not initialized.");
+      const errMsg = "Bucket is not initialized.";
+      console.error(errMsg);
+      throw new Error(errMsg);
   }
   console.log("Retrieved GCS bucket:", BUCKET_NAME);
   return bucket;
 }
 
-
-
 export async function generateV4ReadSignedUrl(filename) {
-  const [url] = await bucket.file(filename).getSignedUrl({
-    version: 'v4',
-    action: 'read',
-    expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-  });
+  try {
+      if (!bucket) {
+          throw new Error("Bucket is not initialized");
+      }
 
-  return url;
+      const [url] = await bucket.file(filename).getSignedUrl({
+          version: 'v4',
+          action: 'read',
+          expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+      });
+
+      return url;
+  } catch (error) {
+      console.error("Failed to generate V4 Read Signed URL:", error.message);
+      throw error;
+  }
 }
 
 export async function generateV4UploadSignedUrl(filename) {
-  const [url] = await bucket.file(filename).getSignedUrl({
-    version: 'v4',
-    action: 'write',
-    contentType: 'application/octet-stream',  // This will allow any file type. Modify if needed.
-    expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-  });
+  try {
+      if (!bucket) {
+          throw new Error("Bucket is not initialized");
+      }
 
-  return url;
+      const [url] = await bucket.file(filename).getSignedUrl({
+          version: 'v4',
+          action: 'write',
+          contentType: 'application/octet-stream',
+          expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+      });
+
+      return url;
+  } catch (error) {
+      console.error("Failed to generate V4 Upload Signed URL:", error.message);
+      throw error;
+  }
 }
