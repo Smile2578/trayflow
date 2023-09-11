@@ -46,8 +46,17 @@ function Dashboard({ onLogout }) {
         }
     };
 
-    const handleCollect = async (id) => {
+    const handleCollect = async (id, task) => {
         try {
+            // Delete the associated files from GCS
+            if (task.upperImpression) {
+                await fetch(`/api/uploads/delete?key=${task.upperImpression}`, { method: 'DELETE' });
+            }
+            if (task.lowerImpression) {
+                await fetch(`/api/uploads/delete?key=${task.lowerImpression}`, { method: 'DELETE' });
+            }
+    
+            // Update the task status to 'Récupéré'
             await fetch(`/api/tasks/${id}`, {
                 method: 'PUT',
                 headers: {
@@ -55,11 +64,14 @@ function Dashboard({ onLogout }) {
                 },
                 body: JSON.stringify({ status: 'Récupéré' }), 
             });
+            
+            // Fetch updated tasks
             fetchTasks();
         } catch (err) {
             console.error("Error collecting task:", err);
         }
     };
+    
 
     const handleFilterChange = (taskType) => {
         setFilters(prev => ({ ...prev, [taskType]: !prev[taskType] }));
@@ -131,6 +143,7 @@ function Dashboard({ onLogout }) {
                     tasks={doneTasks}
                     onMove={moveTask}
                     onDelete={(id) => setTasks(prevTasks => prevTasks.filter(task => task._id !== id))}  // Update tasks state when a task is deleted
+                    onCollect={handleCollect}
                 />
             </Box>
         </Container>

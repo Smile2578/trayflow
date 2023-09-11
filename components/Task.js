@@ -13,6 +13,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
+import { handleCollect } from './Dashboard';
 
 const TASK_TYPE = "TASK";
 
@@ -38,15 +39,6 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
         }
     };
 
-    const handleCollect = async () => {
-        if (task.upperImpression) {
-            const response = await fetch(`/api/uploads/delete?key=${task.upperImpression}`, { method: 'DELETE' });
-        }
-        if (task.lowerImpression) {
-            const response = await fetch(`/api/uploads/delete?key=${task.lowerImpression}`, { method: 'DELETE' });
-        }
-        onCollect(task._id);
-    };
 
     const handleConfirm = () => {
         if (actionToConfirm === 'delete') {
@@ -85,9 +77,9 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
                 <DeleteIcon style={{ color: 'red' }} />
             </div>
             {category === 'done' && (
-                <div className="absolute top-2 right-10 cursor-pointer" onClick={() => setActionToConfirm('collect')}>
-                    <CollectIcon style={{ color: 'green' }} />
-                </div>
+                <div className="absolute top-2 right-10 cursor-pointer" onClick={() => onCollect(task._id, task)}>
+                <CollectIcon style={{ color: 'green' }} />
+            </div>
             )}
             <Dialog open={actionToConfirm !== null} onClose={() => setActionToConfirm(null)}>
                 <DialogTitle>Confirmation</DialogTitle>

@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import styled from 'styled-components';
 import Image from 'next/image';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const LoginForm = styled.form`
   display: flex;
@@ -34,26 +35,27 @@ const Login = ({ onRegister }) => {
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("Login button clicked");
+    setLoading(true);  // Start loading
 
     const result = await signIn('credentials', {
       userName,
       password,
       redirect: false
     });
-    console.log("signIn result:", result);
+
+    setLoading(false);  // End loading
 
     if (result.error) {
       setErrorMessage(result.error);
     } else {
       router.push('/dashboard');
-                  }
+    }
   };
-
 
   return (
     <LoginContainer>
@@ -81,10 +83,12 @@ const Login = ({ onRegister }) => {
             />
           </div>
   
-          {errorMessage && <p className="text-red-600 mb-4">{errorMessage}</p>}  {/* Display error message if present */}
+          {errorMessage && <p className="text-red-600 mb-4">{errorMessage}</p>}
   
           <div className="mb-6 text-center">
-            <button type="submit" className="w-full px-4 py-2 font-bold text-white bg-blue-500 rounded-full hover:bg-blue-700 focus:outline-none focus:shadow-outline">Se connecter</button>
+            <button type="submit" className="w-full px-4 py-2 font-bold text-white bg-blue-500 rounded-full hover:bg-blue-700 focus:outline-none focus:shadow-outline" disabled={loading}>
+              {loading ? <CircularProgress size={24} color="inherit" /> : 'Se connecter'}
+            </button>
           </div>
           
           <div className="text-center">
@@ -94,7 +98,6 @@ const Login = ({ onRegister }) => {
       </motion.div>
     </LoginContainer>
   );
-  
 };
 
 export default Login;
