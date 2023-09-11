@@ -1,13 +1,7 @@
-import { getSession } from 'next-auth/server';
 import { getGCSBucket, generateV4UploadSignedUrl } from '../../../utils/gcs';
 
 export default async function handler(request, response) {
     try {
-        const session = await getSession({ req: request });
-        if (!session) {
-            return response.status(401).json({ error: 'Not authenticated' });
-        }
-
         const { fileName, contentType } = request.body;
 
         if (request.method === 'POST') {
