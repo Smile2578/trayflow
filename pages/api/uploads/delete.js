@@ -1,9 +1,8 @@
-import { initGoogleCloudStorage, getGCSBucket } from '../../../utils/gcs'
+import { initGoogleCloudStorage, getGCSBucket } from '../../../utils/gcs';
 
 const storage = new Storage({
   credentials: JSON.parse(process.env.GCP_SERVICE_ACCOUNT)
 });
-;
 
 export default async function handler(req, res) {
   await initGoogleCloudStorage();  // Initialize GCS
@@ -16,7 +15,10 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'File key is required.' });
     }
 
-    const file = bucket.file(key);
+    // Extract the object name from the key
+    const objectName = new URL(key).pathname.split("/").pop();
+
+    const file = bucket.file(objectName);
     file.delete()
       .then(() => {
         res.status(200).json({ message: 'File deleted successfully' });
