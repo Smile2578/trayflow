@@ -70,24 +70,30 @@ function NewTask({ onAdd, onClose }) {
     }
 
     const handleUpload = async (file) => {
+        console.log('Fetching signed URL for file:', file.name);
+        
         const response = await fetch(`/api/uploads/uploadToGCS`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/octet-stream',
             },
             body: JSON.stringify({
                 fileName: file.name,
             }),
             credentials: 'include',
         });
-    
+        
+        console.log('Received response for signed URL:', response);
+        
         if (!response.ok) {
-            throw new Error('Failed to get signed URL for GCS.');
+            const errorResponse = await response.json();
+            throw new Error(errorResponse.error || 'Unknown error when fetching signed URL.');
         }
-    
+        
         const { signedUrl } = await response.json();
-    
-        // Upload the file directly to GCS using the signed URL
+        
+        console.log('Uploading to GCS using signed URL:', signedUrl);
+        
         const uploadResponse = await fetch(signedUrl, {
             method: 'PUT',
             body: file,
@@ -95,14 +101,15 @@ function NewTask({ onAdd, onClose }) {
                 'Content-Type': 'application/octet-stream',
             },
         });
-    
+        
+        console.log('Received response from GCS upload:', uploadResponse);
+        
         if (!uploadResponse.ok) {
             throw new Error('Failed to upload file to GCS.');
         }
-    
+        
         return signedUrl.split("?")[0]; // Return the GCS file path without query parameters
     };
-    
 
     const handleAddTask = async (e) => {
         if (isSubmitting) return;

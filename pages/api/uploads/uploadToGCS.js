@@ -1,12 +1,11 @@
 import { initGoogleCloudStorage, generateV4UploadSignedUrl, getGCSBucket } from '../../../utils/gcs';
-
 export default async function handler(request, response) {
     try {
         // Ensure GCS is initialized
         await initGoogleCloudStorage();
 
         const { fileName } = request.body;
-
+        console.log('Received request to generate signed URL for:', fileName);
         if (!fileName) {
             return response.status(400).json({ error: 'Invalid input' });
         }
@@ -21,6 +20,7 @@ export default async function handler(request, response) {
                     return response.status(500).json({ error: 'Error generating signed URL', detailedError: err.message });
                 }
             case 'PUT':
+                console.log('Received PUT request to upload file:', fileName);
                 const bucket = getGCSBucket();
                 const file = bucket.file(fileName);
                 const stream = file.createWriteStream({

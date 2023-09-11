@@ -80,7 +80,6 @@ export async function generateV4ReadSignedUrl(filename) {
       throw error;
   }
 }
-
 export async function generateV4UploadSignedUrl(filename) {
   try {
       if (!bucket) {
@@ -94,6 +93,7 @@ export async function generateV4UploadSignedUrl(filename) {
           expires: Date.now() + 15 * 60 * 1000, // 15 minutes
       });
 
+      console.log('Generated signed URL:', url);
       return url;
   } catch (error) {
       console.error("Failed to generate V4 Upload Signed URL:", error.message);
