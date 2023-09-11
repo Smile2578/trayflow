@@ -2,7 +2,6 @@ import { Storage } from '@google-cloud/storage';
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 
 const { BUCKET_NAME, GCP_SERVICE_ACCOUNT } = process.env;
-
 const gcpCredentials = JSON.parse(GCP_SERVICE_ACCOUNT);
 const client = new SecretManagerServiceClient({
     credentials: gcpCredentials
@@ -51,6 +50,17 @@ export async function generateV4ReadSignedUrl(filename) {
   const [url] = await bucket.file(filename).getSignedUrl({
     version: 'v4',
     action: 'read',
+    expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+  });
+
+  return url;
+}
+
+export async function generateV4UploadSignedUrl(filename, contentType) {
+  const [url] = await bucket.file(filename).getSignedUrl({
+    version: 'v4',
+    action: 'write',
+    contentType: contentType,
     expires: Date.now() + 15 * 60 * 1000, // 15 minutes
   });
 
