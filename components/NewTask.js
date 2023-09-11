@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Button, TextField, Select, MenuItem, InputLabel, FormControl, Snackbar, CssBaseline, Paper, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
+import { initGoogleCloudStorage } from '../utils/gcs';
 
 function NewTask({ onAdd, onClose }) {
     const [users, setUsers] = useState([]);
@@ -31,6 +32,19 @@ function NewTask({ onAdd, onClose }) {
             }
         };
         fetchUsers();
+    }, []);
+
+    useEffect(() => {
+        const initializeGCS = async () => {
+            try {
+                await initGoogleCloudStorage();
+                console.log("GCS Initialized successfully from NewTask component.");
+            } catch (error) {
+                console.error("Failed to initialize GCS from NewTask component:", error);
+            }
+        };
+
+        initializeGCS();
     }, []);
 
 
