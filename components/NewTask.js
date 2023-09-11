@@ -66,26 +66,33 @@ function NewTask({ onAdd, onClose }) {
                 fileName: file.name,
                 contentType: file.type,
             }),
+            credentials: 'include',
         });
     
+        if (!response.ok) {
+            throw new Error('Failed to get signed URL for GCS.');
+        }
+    
         const { signedUrl } = await response.json();
-        const uploadResponse = await fetch(signedUrl, {
+    
+        // Upload the file directly to the server endpoint
+        const uploadResponse = await fetch(`/api/uploads/uploadToGCS`, {
             method: 'PUT',
             body: file,
             headers: {
                 'Content-Type': file.type,
             },
+            credentials: 'include',
         });
     
         if (!uploadResponse.ok) {
-            throw new Error('Failed to upload file to GCS.');
+            throw new Error('Failed to upload file.');
         }
     
-        // Use the GCS file path or URL for further processing
-        const gcsFilePath = signedUrl.split("?")[0];
-        return gcsFilePath;
+        return signedUrl.split("?")[0]; // Return the GCS file path
     };
     
+
     const handleAddTask = async (e) => {
         if (isSubmitting) return;
         setIsSubmitting(true);
