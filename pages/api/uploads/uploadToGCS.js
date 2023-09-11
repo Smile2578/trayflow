@@ -5,6 +5,9 @@ export default async function handler(request, response) {
         const { fileName, contentType } = request.body;
 
         if (request.method === 'POST') {
+            console.log("Received fileName:", fileName);
+            console.log("Received contentType:", contentType);
+        
             if (!fileName || !contentType) {
                 return response.status(400).json({ error: 'Invalid input' });
             }
