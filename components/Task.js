@@ -61,20 +61,14 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
         setDownloading(true);
         const response = await fetch(`/api/uploads/download?key=${key}`);
         if (response.ok) {
-            const blob = await response.blob();
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = key;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+          const { url } = await response.json();
+          window.location.href = url;  // Redirect to the signed URL for download
         } else {
-            alert('Failed to download file.');
+          alert('Failed to download file.');
         }
         setDownloading(false);
-    };
+      };
+      
 
     let cardColor = "bg-gray-50";
     let textColor = "text-gray-800";

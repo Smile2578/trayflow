@@ -11,16 +11,15 @@ export default async function handler(req, res) {
     }
 
     const file = bucket.file(key);
-    file.createReadStream()
-      .on('error', () => {
-        return res.status(404).json({ error: 'File not found' });
-      })
-      .on('response', (response) => {
-        // Set the Content-Type based on the file extension
-        const contentType = key.endsWith('.stl') ? 'application/netfabb' : 'application/octet-stream';
-        res.setHeader('Content-Type', contentType);
-      })
-      .pipe(res);
+
+    // Generate a signed URL for downloading the file
+    const [signedUrl] = await file.getSignedUrl({
+      action: 'read',
+      expires: Date.now() + 15 * 60 * 1000,  // URL valid for 15 minutes
+    });
+
+    // Return the signed URL
+    res.status(200).json({ url: signedUrl });
   } else {
     return res.status(405).json({ error: 'Method not allowed.' });
   }
