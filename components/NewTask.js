@@ -70,16 +70,25 @@ function NewTask({ onAdd, onClose }) {
     }
 
     const handleUpload = async (file) => {
+        if (!file || !file.name) {
+            console.error("No file or file name provided.");
+            throw new Error('No valid file provided.');
+        }
+        
         console.log('Fetching signed URL for file:', file.name);
+        
+        const requestBody = {
+            fileName: file.name,
+        };
+        
+        console.log("Request body being sent:", requestBody); // This will help ensure that fileName is not undefined
         
         const response = await fetch(`/api/uploads/uploadToGCS`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/octet-stream',
+                'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                fileName: file.name,
-            }),
+            body: JSON.stringify(requestBody),
             credentials: 'include',
         });
         
@@ -110,6 +119,7 @@ function NewTask({ onAdd, onClose }) {
         
         return signedUrl.split("?")[0]; // Return the GCS file path without query parameters
     };
+    
 
     const handleAddTask = async (e) => {
         if (isSubmitting) return;
