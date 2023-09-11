@@ -2,30 +2,22 @@ import { getGCSBucket, generateV4UploadSignedUrl } from '../../../utils/gcs';
 
 export default async function handler(request, response) {
     try {
-        const { fileName, contentType } = request.body;
+        const { fileName } = request.body;
 
         if (request.method === 'POST') {
             console.log("Received fileName:", fileName);
-            console.log("Received contentType:", contentType);
         
-            if (!fileName || !contentType) {
+            if (!fileName) {
                 return response.status(400).json({ error: 'Invalid input' });
             }
 
-            if (contentType !== 'model/stl') {
-                return response.status(400).json({ error: 'Unsupported file type' });
-            }
-
-            const signedUrl = await generateV4UploadSignedUrl(fileName, contentType);
+            const signedUrl = await generateV4UploadSignedUrl(fileName);
             return response.status(200).json({ signedUrl });
 
         } else if (request.method === 'PUT') {
             const bucket = getGCSBucket();
             const file = bucket.file(fileName);
             const stream = file.createWriteStream({
-                metadata: {
-                    contentType: contentType,
-                },
                 resumable: false,
             });
 

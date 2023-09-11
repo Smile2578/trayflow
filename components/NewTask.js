@@ -76,7 +76,6 @@ function NewTask({ onAdd, onClose }) {
             },
             body: JSON.stringify({
                 fileName: file.name,
-                contentType: file.type,
             }),
             credentials: 'include',
         });
