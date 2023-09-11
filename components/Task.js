@@ -77,6 +77,7 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
     };
 
     let cardColor = "bg-gray-50";
+    let textColor = "text-gray-800";
     switch(task.taskType) {
         case "Contention": cardColor = "bg-blue-50"; break;
         case "Bruxisme": cardColor = "bg-green-50"; break;
@@ -85,7 +86,7 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
     }
 
     return (
-        <div ref={dragRef} className={`transform transition-transform duration-300 border rounded-lg p-4 shadow-sm relative mb-4 bg-gradient-to-r from-white to-gray-100 ${isDragging ? 'opacity-50 scale-105' : 'opacity-100 scale-100'}`}>
+        <div ref={dragRef} className={`transform transition-transform duration-300 border rounded-lg p-4 shadow-sm relative mb-4 bg-gradient-to-r from-white to-gray-100 ${textColor} ${isDragging ? 'opacity-50 scale-105' : 'opacity-100 scale-100'}`}>
             <div className="absolute top-2 right-2 cursor-pointer" onClick={() => setActionToConfirm('delete')}>
                 <DeleteIcon style={{ color: 'red' }} />
             </div>

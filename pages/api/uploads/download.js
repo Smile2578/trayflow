@@ -15,8 +15,10 @@ export default async function handler(req, res) {
       .on('error', () => {
         return res.status(404).json({ error: 'File not found' });
       })
-      .on('response', () => {
-        res.setHeader('Content-Type', 'application/netfabb');
+      .on('response', (response) => {
+        // Set the Content-Type based on the file extension
+        const contentType = key.endsWith('.stl') ? 'application/netfabb' : 'application/octet-stream';
+        res.setHeader('Content-Type', contentType);
       })
       .pipe(res);
   } else {
