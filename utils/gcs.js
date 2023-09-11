@@ -41,10 +41,12 @@ export async function initGoogleCloudStorage() {
 
 export function getGCSBucket() {
   if (!bucket) {
+    console.error("Bucket is not initialized.");
     throw new Error("Google Cloud Storage is not initialized.");
   }
   return bucket;
 }
+
 
 export async function generateV4ReadSignedUrl(filename) {
   const [url] = await bucket.file(filename).getSignedUrl({
