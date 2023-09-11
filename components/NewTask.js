@@ -56,6 +56,10 @@ function NewTask({ onAdd, onClose }) {
         document.getElementById(type + 'FileName').innerText = '';
     }
 
+    console.log("File Name:", file.name);
+    console.log("Content Type:", file.type);
+
+
     const handleUpload = async (file) => {
         const response = await fetch(`/api/uploads/uploadToGCS`, {
             method: 'POST',
@@ -74,7 +78,7 @@ function NewTask({ onAdd, onClose }) {
         }
     
         const { signedUrl } = await response.json();
-    
+        
         // Upload the file directly to the server endpoint
         const uploadResponse = await fetch(`/api/uploads/uploadToGCS`, {
             method: 'PUT',
