@@ -1,4 +1,4 @@
-import { getSession } from 'next-auth/react';
+import { getSession } from 'next-auth/server';
 import { getGCSBucket, generateV4UploadSignedUrl } from '../../../utils/gcs';
 
 export default async function handler(request, response) {
