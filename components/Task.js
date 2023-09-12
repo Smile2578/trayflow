@@ -49,29 +49,28 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
     
         const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     
-        const centerX = page.getWidth() / 2;
-        const centerY = page.getHeight() / 2;
-    
-        const greenColor = rgb(0, 1, 0);
         const defaultColor = rgb(0, 0, 0);
     
-        const centerText = (text, y, options = {}) => {
-            const textSize = font.sizeAtHeight(options.size || 14);
-            const textWidth = textSize.widthOfTextAtSize(text, options.size || 14);
-            page.drawText(text, {
-                x: centerX - textWidth / 2,
-                y: y,
-                font: font,
-                ...options
-            });
-        };
+        // Starting point for the text
+        let yPosition = page.getHeight() - 50; // 50 units from the top
     
-        centerText(task.patientName, centerY + 40, { size: 18, color: greenColor });
-        centerText(`Praticien: ${task.practitionerName}`, centerY + 20, { size: 14, color: defaultColor });
-        centerText(`Date: ${new Date(task.impressionDate).toLocaleDateString()}`, centerY, { size: 12, color: defaultColor });
-        centerText(`Type: ${task.taskType}`, centerY - 20, { size: 12, color: defaultColor });
-        centerText(`Quantité: ${task.quantity}`, centerY - 40, { size: 12, color: defaultColor });
-        centerText(`Numéro de lot: ${task.numeroDeLot}`, centerY - 60, { size: 12, color: defaultColor });
+        // Draw text without centering
+        page.drawText(task.patientName, { x: 10, y: yPosition, size: 18, color: defaultColor, font });
+        yPosition -= 25; // move down 25 units for next line
+        
+        page.drawText(`Praticien: ${task.practitionerName}`, { x: 10, y: yPosition, size: 14, color: defaultColor, font });
+        yPosition -= 20;
+        
+        page.drawText(`Date: ${new Date(task.impressionDate).toLocaleDateString()}`, { x: 10, y: yPosition, size: 12, color: defaultColor, font });
+        yPosition -= 20;
+        
+        page.drawText(`Type: ${task.taskType}`, { x: 10, y: yPosition, size: 12, color: defaultColor, font });
+        yPosition -= 20;
+        
+        page.drawText(`Quantité: ${task.quantity}`, { x: 10, y: yPosition, size: 12, color: defaultColor, font });
+        yPosition -= 20;
+        
+        page.drawText(`Numéro de lot: ${task.numeroDeLot}`, { x: 10, y: yPosition, size: 12, color: defaultColor, font });
     
         const pdfBytes = await pdfDoc.save();
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
