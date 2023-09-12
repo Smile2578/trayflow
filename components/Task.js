@@ -17,6 +17,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import { handleCollect } from './Dashboard';
+import { green } from '@mui/material/colors';
 
 const TASK_TYPE = "TASK";
 
@@ -45,18 +46,38 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
     const generatePDF = async () => {
         const pdfDoc = await PDFDocument.create();
         const page = pdfDoc.addPage([230, 230]); // 80mm x 80mm in points (approx.)
-
-        
-        page.drawText(task.patientName, { x: 50, y: 200, size: 18 });
-        page.drawText(`Praticien: ${task.practitionerName}`, { x: 50, y: 180, size: 14 });
-        page.drawText(`Date: ${task.date}`, { x: 50, y: 160, size: 12 });
-        page.drawText(`Type: ${task.taskType}`, { x: 50, y: 140, size: 12 });
-        page.drawText(`Quantité: ${task.quantity}`, { x: 50, y: 120, size: 12 });
-
+    
+        // Calculate the center of the page
+        const centerX = page.getWidth() / 2;
+        const centerY = page.getHeight() / 2;
+    
+        // Define some colors for different lines
+        const greenColor = { red: 0, green: 1, blue: 0 }; // RGB for green
+        const defaultColor = { red: 0, green: 0, blue: 0 }; // RGB for black
+    
+        // Define a function to center text
+        const centerText = (text, y, options = {}) => {
+            const textSize = pdfDoc.Font.Helvetica.sizeAtHeight(options.size || 14);
+            const textWidth = textSize.widthOfTextAtSize(text, options.size || 14);
+            page.drawText(text, {
+                x: centerX - textWidth / 2,
+                y: y,
+                ...options
+            });
+        };
+    
+        // Draw the text
+        centerText(task.patientName, centerY + 40, { size: 18, color: greenColor });
+        centerText(`👩‍⚕️ Praticien: ${task.practitionerName}`, centerY + 20, { size: 14, color: defaultColor });
+        centerText(`📅 Date: ${new Date(task.impressionDate).toLocaleDateString()}`, centerY, { size: 12, color: defaultColor });
+        centerText(`📁 Type: ${task.taskType}`, centerY - 20, { size: 12, color: defaultColor });
+        centerText(`🔢 Quantité: ${task.quantity}`, centerY - 40, { size: 12, color: defaultColor });
+    
         const pdfBytes = await pdfDoc.save();
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
         saveAs(blob, `${task.patientName}.pdf`);
     };
+    
 
 
     const handleConfirm = () => {
