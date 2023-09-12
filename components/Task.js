@@ -1,6 +1,6 @@
 import { useDrag } from 'react-dnd';
 import { useState } from 'react';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, StandardFonts } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { saveAs } from 'file-saver';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -72,6 +72,7 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
         centerText(`📅 Date: ${new Date(task.impressionDate).toLocaleDateString()}`, centerY, { size: 12, color: defaultColor });
         centerText(`📁 Type: ${task.taskType}`, centerY - 20, { size: 12, color: defaultColor });
         centerText(`🔢 Quantité: ${task.quantity}`, centerY - 40, { size: 12, color: defaultColor });
+        centerText(`🔢 Numéro de lot: ${task.numeroDeLot}`, centerY - 40, { size: 12, color: defaultColor });
 
         const pdfBytes = await pdfDoc.save();
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
