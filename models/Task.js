@@ -46,7 +46,8 @@ const TaskSchema = new Schema({
   },
   quantity: {
     type: Number,
-    required: true
+    required: true,
+    default: 1,
   },
   priority: {
     type: String,
@@ -59,9 +60,17 @@ const TaskSchema = new Schema({
     enum: ['A faire', 'En Cours', 'Prêt', 'Récupéré'],
     default: 'A faire'
   },
-  comment: String
-}, {
-  timestamps: true  // This will create 'createdAt' and 'updatedAt' fields
+  comment: {
+  type: String,
+  timestamps: true,
+  default: null
+},
+  numeroDeLot: {
+    type: String,
+    default: null
+}
+
 });
+
 
 module.exports = mongoose.models.Task || mongoose.model('Task', TaskSchema);

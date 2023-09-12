@@ -1,5 +1,7 @@
 import { useDrag } from 'react-dnd';
 import { useState } from 'react';
+import { PDFDocument } from 'pdf-lib';
+import { saveAs } from 'file-saver';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CollectIcon from '@mui/icons-material/Archive';
 import WarningIcon from '@mui/icons-material/Warning';
@@ -7,6 +9,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import WorkIcon from '@mui/icons-material/Work';
 import CommentIcon from '@mui/icons-material/Comment';
+import DownloadIcon from '@mui/icons-material/FileDownload';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -37,6 +40,22 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
         } else {
             alert("Failed to delete the task.");
         }
+    };
+
+    const generatePDF = async () => {
+        const pdfDoc = await PDFDocument.create();
+        const page = pdfDoc.addPage([230, 230]); // 80mm x 80mm in points (approx.)
+
+        
+        page.drawText(task.patientName, { x: 50, y: 200, size: 18 });
+        page.drawText(`Praticien: ${task.practitionerName}`, { x: 50, y: 180, size: 14 });
+        page.drawText(`Date: ${task.date}`, { x: 50, y: 160, size: 12 });
+        page.drawText(`Type: ${task.taskType}`, { x: 50, y: 140, size: 12 });
+        page.drawText(`Quantité: ${task.quantity}`, { x: 50, y: 120, size: 12 });
+
+        const pdfBytes = await pdfDoc.save();
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        saveAs(blob, `${task.patientName}.pdf`);
     };
 
 
@@ -72,7 +91,7 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
     }
 
     return (
-        <div ref={dragRef} className={`transform transition-transform duration-300 border rounded-lg p-4 shadow-sm relative mb-4 bg-gradient-to-r from-white to-gray-100 ${textColor} ${isDragging ? 'opacity-50 scale-105' : 'opacity-100 scale-100'}`}>
+        <div ref={dragRef} className={`transform transition-transform duration-300 border rounded-lg p-4 shadow-sm relative mb-4 bg-gradient-to-r from-white to-gray-100 ${textColor} ${cardColor} ${isDragging ? 'opacity-50 scale-105' : 'opacity-100 scale-100'}`}>
             <div className="absolute top-2 right-2 cursor-pointer" onClick={() => setActionToConfirm('delete')}>
                 <DeleteIcon style={{ color: 'red' }} />
             </div>
@@ -126,6 +145,9 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
             )}
             <p className="text-sm mb-2"> Quantité: {task.quantity}</p>
             {task.comment && <p className="text-sm italic"><CommentIcon fontSize="small" color="primary" /> {task.comment}</p>}
+            <div className="absolute bottom-2 right-2 cursor-pointer" onClick={generatePDF}>
+                <DownloadIcon style={{ color: 'blue' }} />
+            </div>
         </div>
     );    
 }

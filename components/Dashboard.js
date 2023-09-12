@@ -14,6 +14,10 @@ function Dashboard({ onLogout }) {
         'Smile Secure': true
     });
     const [anchorEl, setAnchorEl] = useState(null);
+    const [showNumeroDeLotModal, setShowNumeroDeLotModal] = useState(false);
+    const [movingTaskId, setMovingTaskId] = useState(null);
+    const [numeroDeLot, setNumeroDeLot] = useState('');
+
 
     // Fetch all tasks from the backend
     const fetchTasks = async () => {
@@ -32,17 +36,23 @@ function Dashboard({ onLogout }) {
     }, []);
 
     const moveTask = async (id, targetStatus) => {
-        try {
-            await fetch(`/api/tasks/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ status: targetStatus }),
-            });
-            fetchTasks();
-        } catch (err) {
-            console.error("Error moving task:", err);
+        if (targetStatus === 'En Cours') {
+            setMovingTaskId(id);
+            setShowNumeroDeLotModal(true);
+        } else {
+            try {
+                await fetch(`/api/tasks/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status: targetStatus }),
+                });
+                fetchTasks();
+            } catch (err) {
+                console.error("Error moving task:", err);
+                alert("Une erreur s'est produite lors du déplacement de la tâche.");
+            }
         }
     };
 
@@ -146,6 +156,53 @@ function Dashboard({ onLogout }) {
                     onCollect={handleCollect}
                 />
             </Box>
+            {showNumeroDeLotModal && (
+                <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-50">
+                    <div className="bg-white p-4 rounded shadow-lg">
+                        <h2 className="mb-4">Entrez le Numéro de lot</h2>
+                        <input 
+                            type="text" 
+                            value={numeroDeLot} 
+                            onChange={(e) => setNumeroDeLot(e.target.value)} 
+                            className="border p-2 rounded mb-4 w-full"
+                        />
+                        <button 
+                            className="bg-blue-500 text-white px-4 py-2 rounded" 
+                            onClick={async () => {
+                                if (movingTaskId) {
+                                    try {
+                                        await fetch(`/api/tasks/${movingTaskId}`, {
+                                            method: 'PUT',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                            },
+                                            body: JSON.stringify({ status: 'En Cours', numeroDeLot: numeroDeLot }),
+                                        });
+                                        fetchTasks();
+                                    } catch (err) {
+                                        console.error("Error moving task:", err);
+                                    }
+                                }
+                                setMovingTaskId(null);
+                                setShowNumeroDeLotModal(false);
+                                setNumeroDeLot('');
+                            }}
+                        >
+                            Confirmer
+                        </button>
+                        <button 
+                            className="ml-2 text-gray-500" 
+                            onClick={() => {
+                                setShowNumeroDeLotModal(false);
+                                setMovingTaskId(null);
+                                setNumeroDeLot('');
+                            }}
+                        >
+                            Annuler
+                        </button>
+                    </div>
+                </div>
+            )}
         </Container>
     );
 }
