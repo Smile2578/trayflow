@@ -1,6 +1,6 @@
 import { useDrag } from 'react-dnd';
 import { useState } from 'react';
-import { PDFDocument, StandardFonts } from 'pdf-lib';
+import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { saveAs } from 'file-saver';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -53,8 +53,9 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
         const centerX = page.getWidth() / 2;
         const centerY = page.getHeight() / 2;
     
-        const greenColor = { red: 0, green: 1, blue: 0 };
-        const defaultColor = { red: 0, green: 0, blue: 0 };
+        const greenColor = rgb(0, 1, 0);  // RGB for green
+        const defaultColor = rgb(0, 0, 0);  // RGB for black
+
     
         const centerText = (text, y, options = {}) => {
             const size = options.size || 14;
