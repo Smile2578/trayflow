@@ -1,6 +1,7 @@
 import { useDrag } from 'react-dnd';
 import { useState } from 'react';
-import { PDFDocument, StandardFonts } from 'pdf-lib';
+import { PDFDocument } from 'pdf-lib';
+import fontkit from '@pdf-lib/fontkit';
 import { saveAs } from 'file-saver';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CollectIcon from '@mui/icons-material/Archive';
@@ -17,7 +18,6 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import { handleCollect } from './Dashboard';
-import { green } from '@mui/material/colors';
 
 const TASK_TYPE = "TASK";
 
@@ -45,43 +45,45 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
 
     const generatePDF = async () => {
         const pdfDoc = await PDFDocument.create();
+        pdfDoc.registerFontkit(fontkit);
+        
         const page = pdfDoc.addPage([230, 230]); // 80mm x 80mm in points (approx.)
-    
+
         // Use the built-in Helvetica font
         const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    
-        // Calculate the center of the page
-        const centerX = page.getWidth() / 2;
-        const centerY = page.getHeight() / 2;
-    
-        // Define some colors for different lines
-        const greenColor = { red: 0, green: 1, blue: 0 }; // RGB for green
-        const defaultColor = { red: 0, green: 0, blue: 0 }; // RGB for black
-    
-        // Define a function to center text
-        const centerText = (text, y, options = {}) => {
-            const textSize = font.sizeAtHeight(options.size || 14);
-            const textWidth = textSize.widthOfTextAtSize(text, options.size || 14);
-            page.drawText(text, {
-                x: centerX - textWidth / 2,
-                y: y,
-                font: font,
-                ...options
-            });
-        };
-    
-        // Draw the text
-        centerText(task.patientName, centerY + 40, { size: 18, color: greenColor });
-        centerText(`👩‍⚕️ Praticien: ${task.practitionerName}`, centerY + 20, { size: 14, color: defaultColor });
-        centerText(`📅 Date: ${new Date(task.impressionDate).toLocaleDateString()}`, centerY, { size: 12, color: defaultColor });
-        centerText(`📁 Type: ${task.taskType}`, centerY - 20, { size: 12, color: defaultColor });
-        centerText(`🔢 Quantité: ${task.quantity}`, centerY - 40, { size: 12, color: defaultColor });
-    
-        const pdfBytes = await pdfDoc.save();
-        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-        saveAs(blob, `${task.patientName}.pdf`);
+
+    // Calculate the center of the page
+    const centerX = page.getWidth() / 2;
+    const centerY = page.getHeight() / 2;
+
+    // Define some colors for different lines
+    const greenColor = { red: 0, green: 1, blue: 0 }; // RGB for green
+    const defaultColor = { red: 0, green: 0, blue: 0 }; // RGB for black
+
+    // Define a function to center text
+    const centerText = (text, y, options = {}) => {
+        const textSize = font.sizeAtHeight(options.size || 14);
+        const textWidth = textSize.widthOfTextAtSize(text, options.size || 14);
+        page.drawText(text, {
+            x: centerX - textWidth / 2,
+            y: y,
+            font: font,
+            ...options
+        });
     };
-    
+
+    // Draw the text
+    centerText(task.patientName, centerY + 40, { size: 18, color: greenColor });
+    centerText(`👩‍⚕️ Praticien: ${task.practitionerName}`, centerY + 20, { size: 14, color: defaultColor });
+    centerText(`📅 Date: ${new Date(task.impressionDate).toLocaleDateString()}`, centerY, { size: 12, color: defaultColor });
+    centerText(`📁 Type: ${task.taskType}`, centerY - 20, { size: 12, color: defaultColor });
+    centerText(`🔢 Quantité: ${task.quantity}`, centerY - 40, { size: 12, color: defaultColor });
+
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    saveAs(blob, `${task.patientName}.pdf`);
+};
+
     
         // Draw the text
         centerText(task.patientName, centerY + 40, { size: 18, color: greenColor });
