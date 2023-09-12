@@ -17,7 +17,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
-import { handleCollect } from './Dashboard';
 
 const TASK_TYPE = "TASK";
 
@@ -78,7 +77,6 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
         saveAs(blob, `${task.patientName}.pdf`);
     };
-
     
 
 
@@ -112,6 +110,32 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
         case "Blanchiment": cardColor = "bg-yellow-50"; break;
         case "Smile Secure": cardColor = "bg-pink-50"; break;
     }
+
+    const handleCollect = async (id, task) => {
+        try {
+            // Delete the associated files from GCS
+            if (task.upperImpression) {
+                await fetch(`/api/uploads/delete?key=${task.upperImpression}`, { method: 'DELETE' });
+            }
+            if (task.lowerImpression) {
+                await fetch(`/api/uploads/delete?key=${task.lowerImpression}`, { method: 'DELETE' });
+            }
+    
+            // Update the task status to 'Récupéré'
+            await fetch(`/api/tasks/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: 'Récupéré' }), 
+            });
+            
+            // Fetch updated tasks
+            fetchTasks();
+        } catch (err) {
+            console.error("Error collecting task:", err);
+        }
+    };
 
     return (
         <div ref={dragRef} className={`transform transition-transform duration-300 border rounded-lg p-4 shadow-sm relative mb-4 bg-gradient-to-r from-white to-gray-100 ${textColor} ${cardColor} ${isDragging ? 'opacity-50 scale-105' : 'opacity-100 scale-100'}`}>
