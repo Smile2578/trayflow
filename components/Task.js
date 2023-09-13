@@ -42,41 +42,41 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
         }
     };
 
-    const generatePDF = async () => {
-        const pdfDoc = await PDFDocument.create();
-        
-        const page = pdfDoc.addPage([230, 230]);
+const generatePDF = async () => {
+    const pdfDoc = await PDFDocument.create();
     
-        const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const page = pdfDoc.addPage([230, 230]);
+
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+    const defaultColor = rgb(0, 0, 0);
+
+    // Starting point for the text
+    let yPosition = page.getHeight() - 50; // 50 units from the top
+
+    // Draw text without centering
+    page.drawText(task.patientName, { x: 10, y: yPosition, size: 18, color: defaultColor, font });
+    yPosition -= 25; // move down 25 units for next line
     
-        const defaultColor = rgb(0, 0, 0);
+    page.drawText(`Praticien: ${task.practitionerName}`, { x: 10, y: yPosition, size: 14, color: defaultColor, font });
+    yPosition -= 20;
     
-        // Starting point for the text
-        let yPosition = page.getHeight() - 50; // 50 units from the top
+    page.drawText(`Date: ${new Date(task.impressionDate).toLocaleDateString()}`, { x: 10, y: yPosition, size: 12, color: defaultColor, font });
+    yPosition -= 20;
     
-        // Draw text without centering
-        page.drawText(task.patientName, { x: 10, y: yPosition, size: 18, color: defaultColor, font });
-        yPosition -= 25; // move down 25 units for next line
-        
-        page.drawText(`Praticien: ${task.practitionerName}`, { x: 10, y: yPosition, size: 14, color: defaultColor, font });
-        yPosition -= 20;
-        
-        page.drawText(`Date: ${new Date(task.impressionDate).toLocaleDateString()}`, { x: 10, y: yPosition, size: 12, color: defaultColor, font });
-        yPosition -= 20;
-        
-        page.drawText(`Type: ${task.taskType}`, { x: 10, y: yPosition, size: 12, color: defaultColor, font });
-        yPosition -= 20;
-        
-        page.drawText(`Quantité: ${task.quantity}`, { x: 10, y: yPosition, size: 12, color: defaultColor, font });
-        yPosition -= 20;
-        
-        page.drawText(`Numéro de lot: ${task.numeroDeLot}`, { x: 10, y: yPosition, size: 12, color: defaultColor, font });
+    page.drawText(`Type: ${task.taskType}`, { x: 10, y: yPosition, size: 12, color: defaultColor, font });
+    yPosition -= 20;
     
-        const pdfBytes = await pdfDoc.save();
-        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-        saveAs(blob, `${task.patientName}.pdf`);
-    };
+    page.drawText(`Quantité: ${task.quantity}`, { x: 10, y: yPosition, size: 12, color: defaultColor, font });
+    yPosition -= 20;
     
+    page.drawText(`Numéro de lot: ${task.numeroDeLot}`, { x: 10, y: yPosition, size: 12, color: defaultColor, font });
+
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    saveAs(blob, `${task.patientName}.pdf`);
+};
+
     
 
 
@@ -105,10 +105,10 @@ function Task({ task, onDelete, onMove, category, onCollect }) {
     let cardColor = "bg-gray-50";
     let textColor = "text-gray-800";
     switch(task.taskType) {
-        case "Contention": cardColor = "bg-blue-50"; break;
-        case "Bruxisme": cardColor = "bg-green-50"; break;
-        case "Blanchiment": cardColor = "bg-yellow-50"; break;
-        case "Smile Secure": cardColor = "bg-pink-50"; break;
+        case "Contention": cardColor = "bg-blue-100"; break;
+        case "Bruxisme": cardColor = "bg-green-100"; break;
+        case "Blanchiment": cardColor = "bg-yellow-100"; break;
+        case "Smile Secure": cardColor = "bg-pink-100"; break;
     }
 
     const handleCollect = async (id, task) => {
