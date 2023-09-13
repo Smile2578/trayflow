@@ -80,14 +80,14 @@ const generatePDF = async () => {
     
 
 
-    const handleConfirm = () => {
-        if (actionToConfirm === 'delete') {
-            handleDelete();
-        } else if (actionToConfirm === 'collect') {
-            handleCollect();
-        }
-        setActionToConfirm(null);
-    };
+const handleConfirm = () => {
+    if (actionToConfirm === 'delete') {
+        handleDelete();
+    } else if (actionToConfirm === 'collect') {
+        handleCollect(task._id, task);
+    }
+    setActionToConfirm(null);
+};
 
     const handleDownload = async (key) => {
         setDownloading(true);
@@ -138,21 +138,23 @@ const generatePDF = async () => {
     };
 
     return (
-        <div ref={dragRef} className={`transform transition-transform duration-300 border rounded-lg p-4 shadow-sm relative mb-4 bg-gradient-to-r from-white to-gray-100 ${textColor} ${cardColor} ${isDragging ? 'opacity-50 scale-105' : 'opacity-100 scale-100'}`}>
+        <div ref={dragRef} className={`transform transition-transform duration-300 border rounded-lg p-4 shadow-sm relative mb-4 ${textColor} ${cardColor} ${isDragging ? 'opacity-50 scale-105' : 'opacity-100 scale-100'}`}>
             <div className="absolute top-2 right-2 cursor-pointer" onClick={() => setActionToConfirm('delete')}>
                 <DeleteIcon style={{ color: 'red' }} />
             </div>
             {category === 'done' && (
-                <div className="absolute top-2 right-10 cursor-pointer" onClick={() => onCollect(task._id, task)}>
+            <div className="absolute top-2 right-10 cursor-pointer" onClick={() => setActionToConfirm('collect')}>
                 <CollectIcon style={{ color: 'green' }} />
             </div>
             )}
             <Dialog open={actionToConfirm !== null} onClose={() => setActionToConfirm(null)}>
                 <DialogTitle>Confirmation</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
-                        {actionToConfirm === 'delete' ? 'Voulez-vous vraiment supprimer cette tâche ?' : 'Voulez-vous vraiment collecter cette tâche ?'}
-                    </DialogContentText>
+                <DialogContentText>
+                    {actionToConfirm === 'delete' 
+                        ? 'Voulez-vous vraiment supprimer cette tâche ?' 
+                        : 'Voulez-vous vraiment collecter cette tâche ?'}
+                </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setActionToConfirm(null)} color="primary">Annuler</Button>
