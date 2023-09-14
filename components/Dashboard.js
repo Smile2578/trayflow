@@ -159,12 +159,12 @@ function Dashboard({ onLogout }) {
             {showNumeroDeLotModal && (
                 <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-black bg-opacity-50">
                     <div className="bg-white p-4 rounded shadow-lg">
-                        <h2 className="mb-4">Entrez le Numéro de lot</h2>
+                        <h2 className="mb-4 text-black">Entrez le Numéro de lot</h2>
                         <input 
                             type="text" 
                             value={numeroDeLot} 
                             onChange={(e) => setNumeroDeLot(e.target.value)} 
-                            className="border p-2 rounded mb-4 w-full"
+                            className="border p-2 rounded mb-4 w-full text-black"
                         />
                         <button 
                             className="bg-blue-500 text-white px-4 py-2 rounded" 
